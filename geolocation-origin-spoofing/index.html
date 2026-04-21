@@ -15,8 +15,8 @@
 <body>
 
 <div class="container">
-    <h2>PoC: Unified Origin Spoofing</h2>
-    <p>This PoC targets the <strong>Missing Origin</strong> bug in iOS third-party browsers by using the <code>javascript:</code> protocol navigation in an <code>about:blank</code> context.</p>
+    <h2>PoC: Geolocation Missing Origin</h2>
+    <p>This PoC targets the <strong>Missing Origin</strong> bug in browsers by using the <code>javascript:</code> protocol navigation in an <code>about:blank</code> context.</p>
     
     <button onclick="launchVulnerability()">Launch Vulnerable Popup</button>
 
@@ -24,7 +24,7 @@
         <strong>Steps:</strong><br>
         1. Click the button to open a blank popup.<br>
         2. Inside the popup, click the 🔴 links.<br>
-        3. If vulnerable, the iOS system dialog will show <strong>""</strong> or no domain at all.
+        3. If vulnerable, the system dialog will show <strong>""</strong> or no domain at all.
     </div>
 </div>
 
@@ -48,9 +48,7 @@
                 <p style="font-size: 14px; color: #666;">Triggering permissions via javascript: URI</p>
                 <hr>
                 <div style="display: flex; flex-direction: column; gap: 15px; margin-top: 20px;">
-                    <a href="${audioCode}" style="display: block; padding: 15px; background: #d9534f; color: white; text-decoration: none; border-radius: 8px; font-weight: bold;">
-                        🔴 Trigger Audio (Spoof)
-                    </a>
+
                     <a href="${geoCode}" style="display: block; padding: 15px; background: #d9534f; color: white; text-decoration: none; border-radius: 8px; font-weight: bold;">
                         🔴 Trigger Geolocation (Spoof)
                     </a>
