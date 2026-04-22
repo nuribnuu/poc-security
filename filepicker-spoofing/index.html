@@ -35,12 +35,9 @@
 
 <script>
   link.onclick = () => {
+    alert();
+    fileSelect.click();
     window.open("https://google.com");
-    // Memberi jeda 300-500ms seringkali lebih efektif daripada alert
-    // agar dialog muncul di "atas" Google.
-    setTimeout(() => {
-      fileSelect.click();
-    }, 2000);
   };
 
   fileSelect.onchange = (event) => {
