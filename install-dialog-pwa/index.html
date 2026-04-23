@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="manifest" href="manifest.json">
+</head>
+<body>
+<script>
+  // Trigger PWA install prompt
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    // Tampilkan prompt install
+    e.prompt();
+    
+    // SAMBIL prompt muncul, langsung navigate ke origin lain
+    setTimeout(() => {
+      window.location.href = 'https://microsoft.com';
+    }, 100); // delay sangat singkat
+  });
+</script>
+</body>
+</html>
