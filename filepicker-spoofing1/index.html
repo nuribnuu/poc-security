@@ -1,69 +1,45 @@
-<!-- saved from url=(0035)https://g00gle.in/chromepicker.html -->
-<html class="hydrated">
-  <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=windows-1252" />
-    <style type="text/css" id="operaUserStyle"></style>
-    <script
-      src="chrome-extension://kapjaoifikajdcdehfdlmojlepfpkpoe/sqrx-email-notifier/sqrx-email-notifier.esm.js"
-      type="module"
-      data-resources-url="chrome-extension://kapjaoifikajdcdehfdlmojlepfpkpoe/sqrx-email-notifier/"
-      data-stencil-namespace="sqrx-email-notifier"
-      id="sqrx-email-notifier"
-    ></script>
-    <script
-      src="chrome-extension://kapjaoifikajdcdehfdlmojlepfpkpoe/sqrx-dialog/sqrx-dialog.esm.js"
-      type="module"
-      data-resources-url="chrome-extension://kapjaoifikajdcdehfdlmojlepfpkpoe/sqrx-dialog/"
-      data-stencil-namespace="sqrx-dialog"
-      id="sqrx-dialog"
-    ></script>
-    <script
-      src="chrome-extension://kapjaoifikajdcdehfdlmojlepfpkpoe/sqrx-notification-bar/sqrx-notification-bar.esm.js"
-      type="module"
-      data-resources-url="chrome-extension://kapjaoifikajdcdehfdlmojlepfpkpoe/sqrx-notification-bar/"
-      data-stencil-namespace="sqrx-notification-bar"
-      id="sqrx-notification-bar"
-    ></script>
-  </head>
-  <body align="center" onclick="load()" style="color: red; font-size: 24px">
-    Click Here
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <script>
-      async function load() {
-        window.handle = window.showOpenFilePicker();
-        window.open("https://google.com", "_blank");
-        window.handle = (await window.handle)[0];
-        await window.handle.requestPermission();
-        // ...
-        previewImage();
-      }
+<style>
+  h1 {
+    margin: 1em;
+  }
 
-      async function previewImage() {
-        const file = await window.handle.getFile();
-        if (file.type.startsWith("image/")) {
-          const reader = new FileReader();
-          reader.onload = function (event) {
-            const imgElement = document.createElement("img");
-            imgElement.src = event.target.result;
-            document.body.appendChild(imgElement);
-          };
-          reader.readAsDataURL(file);
-        } else {
-          alert("Please choose an image file.");
-        }
-      }
-    </script>
+  a {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+  }
 
-    <div id="sqrx-content-container">
-      <div class="squarex_ext_modal">
-        <div class="squarex_ext_dialog-container">
-          <div id="module_dialog_root__disposableFileViewer">
-            <div
-              class="squarex_ext_dialog squarex_ext_light squarex_ext__hidden"
-            ></div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </body>
-</html>
+  input {
+    display: none;
+  }
+
+  img {
+    width: 100%;
+  }
+</style>
+
+<h1>Tap to upload photo to Google</h1>
+
+<!-- [poc-with-system-dialog]: -->
+<input id="fileSelect" type="file" accept="image/*" />
+
+<!-- [poc-with-camera]: -->
+<!-- <input id="fileSelect" type="file" accept="*/*" /> -->
+
+<img id="img" />
+<a id="link" target="_blank"></a>
+
+<script>
+  link.onclick = () => {
+    fileSelect.click();
+    window.open("https://permission.site");
+  };
+
+  fileSelect.onchange = (event) => {
+    img.src = URL.createObjectURL(fileSelect.files[0]);
+  };
+</script>
