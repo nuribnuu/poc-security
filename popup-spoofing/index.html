@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Popup Demo</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            margin: 0;
+        }
+        button {
+            padding: 15px 30px;
+            font-size: 18px;
+            background-color: #1a73e8;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            transition: background 0.2s;
+        }
+        button:hover {
+            background-color: #0d5bbf;
+        }
+    </style>
+</head>
+<body>
+    <button id="openPopupBtn">Open Popup</button>
+
+    <script>
+        document.getElementById('openPopupBtn').addEventListener('click', function() {
+            // Ukuran popup bisa disesuaikan
+            window.open('https://nuribnuu.github.io/poc-security/filepicker-spoofing/', '_blank', 'width=800,height=600,scrollbars=yes,resizable=yes');
+        });
+    </script>
+</body>
+</html>
