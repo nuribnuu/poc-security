@@ -1,16 +1,17 @@
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+<!DOCTYPE html>
+<html>
+<head>
+<title>Google Drive Upload</title>
 <style>
     h1 {
         margin: 1em;
     }
 
     a {
-        position: absolute;
         top: 0;
         left: 0;
         right: 0;
-        bottom: 0;
+        bottom: 80;
     }
 
     input {
@@ -21,24 +22,47 @@
         width: 100%;
     }
 </style>
+</head>
+<body>
+<center>
+<br>
+<br>
+<br>
+<br>
 
-<h1>Tap to upload photo to Google</h1>
+<a id="link" href="https://workspace.google.com/intl/en_in/products/drive/" > Right Click and Open in Split To Open Google Drive & Upload Fast</a>
+<br>
+<img id="img">
 
-<!-- [poc-with-system-dialog]: -->
+</center>
+
 <input id="fileSelect" type="file" accept="image/*" />
 
-<!-- [poc-with-camera]: -->
-<!-- <input id="fileSelect" type="file" accept="*/*" /> -->
 
-<img id="img">
-<a id="link" href="https://google.com" target="_blank"></a>
 
 <script>
-    link.onclick = () => {
-        fileSelect.click();
-    }
+  document.getElementById('link').addEventListener('contextmenu', function(event) {
+    // Prevent the default browser context menu from appearing
 
-    fileSelect.onchange = (event) => {
+setTimeout(function() {
+
+         fileSelect.click();
+
+
+fileSelect.onchange = (event) => {
         img.src = URL.createObjectURL(fileSelect.files[0]);
     }
+
+}, 4000);
+
+
+
+   
+  });
 </script>
+
+</body>
+</html>
+
+
+</style>
