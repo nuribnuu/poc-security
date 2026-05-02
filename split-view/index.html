@@ -1,59 +1,54 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
-  <head>
-    <title>Google Drive Upload - Modified</title>
-    <style>
-      a {
+<head>
+<title>Google Drive Upload - showOpenFilePicker</title>
+<style>
+    a {
         top: 0;
         left: 0;
         right: 0;
         bottom: 80;
-      }
-      img {
+    }
+    img {
         width: 100%;
         max-width: 400px;
         margin-top: 20px;
-      }
-    </style>
-  </head>
-  <body>
-    <center>
-      <br /><br /><br /><br />
-      <a
-        id="link"
-        href="https://workspace.google.com/intl/en_in/products/drive/"
-      >
+    }
+</style>
+</head>
+<body>
+<center>
+    <br><br><br><br>
+    <a id="link" href="https://workspace.google.com/intl/en_in/products/drive/">
         Right Click and Open in Split To Open Google Drive & Upload Fast
-      </a>
-      <br />
-      <img id="img" />
-    </center>
+    </a>
+    <br>
+    <img id="img">
+</center>
 
-    <script>
-      document
-        .getElementById("link")
-        .addEventListener("contextmenu", function (event) {
-          // Optional: prevent default context menu (though not strictly needed)
-          // event.preventDefault();
+<script>
+    document.getElementById('link').addEventListener('contextmenu', async function(event) {
+        // Prevent default context menu jika perlu
+        // event.preventDefault();
 
-          setTimeout(function () {
-            // Membuat elemen input file secara dinamis
-            const fileInput = document.createElement("input");
-            fileInput.type = "file";
-            fileInput.accept = "image/*";
-
-            // Menangani perubahan setelah user memilih file
-            fileInput.onchange = (e) => {
-              if (fileInput.files && fileInput.files[0]) {
-                const img = document.getElementById("img");
-                img.src = URL.createObjectURL(fileInput.files[0]);
-              }
-            };
-
-            // Memunculkan file picker
-            fileInput.click();
-          }, 4000);
-        });
-    </script>
-  </body>
+        setTimeout(async function() {
+            try {
+                // Menggunakan File System Access API
+                const [fileHandle] = await window.showOpenFilePicker({
+                    types: [{
+                        description: 'Images',
+                        accept: {'image/*': ['.png', '.jpg', '.jpeg', '.gif', '.webp']}
+                    }],
+                    multiple: false
+                });
+                const file = await fileHandle.getFile();
+                const img = document.getElementById('img');
+                img.src = URL.createObjectURL(file);
+            } catch (err) {
+                console.error('User cancelled or error:', err);
+            }
+        }, 4000);
+    });
+</script>
+</body>
 </html>
