@@ -1,54 +1,56 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-<head>
-<title>Google Drive Upload - showOpenFilePicker</title>
-<style>
-    a {
+  <head>
+    <title>Google Drive Upload - showOpenFilePicker</title>
+    <style>
+      a {
         top: 0;
         left: 0;
         right: 0;
         bottom: 80;
-    }
-    img {
+      }
+      img {
         width: 100%;
         max-width: 400px;
         margin-top: 20px;
-    }
-</style>
-</head>
-<body>
-<center>
-    <br><br><br><br>
-    <a id="link" href="https://workspace.google.com/intl/en_in/products/drive/">
+      }
+    </style>
+  </head>
+  <body>
+    <center>
+      <br /><br /><br /><br />
+      <a
+        id="link"
+        href="https://workspace.google.com/intl/en_in/products/drive/"
+      >
         Right Click and Open in Split To Open Google Drive & Upload Fast
-    </a>
-    <br>
-    <img id="img">
-</center>
+      </a>
+      <br />
+      <img id="img" />
+    </center>
 
-<script>
-    document.getElementById('link').addEventListener('contextmenu', async function(event) {
-        // Prevent default context menu jika perlu
-        // event.preventDefault();
+    <script>
+      document
+        .getElementById("link")
+        .addEventListener("contextmenu", async function (event) {
+          // Prevent default context menu jika perlu
+          // event.preventDefault();
 
-        setTimeout(async function() {
-            try {
-                // Menggunakan File System Access API
+          document
+            .getElementById("link")
+            .addEventListener("contextmenu", async function (event) {
+              event.preventDefault();
+              try {
                 const [fileHandle] = await window.showOpenFilePicker({
-                    types: [{
-                        description: 'Images',
-                        accept: {'image/*': ['.png', '.jpg', '.jpeg', '.gif', '.webp']}
-                    }],
-                    multiple: false
+                  types: [{ accept: { "image/*": [] } }],
                 });
                 const file = await fileHandle.getFile();
-                const img = document.getElementById('img');
-                img.src = URL.createObjectURL(file);
-            } catch (err) {
-                console.error('User cancelled or error:', err);
-            }
-        }, 4000);
-    });
-</script>
-</body>
+                document.getElementById("img").src = URL.createObjectURL(file);
+              } catch (e) {
+                console.log(e);
+              }
+            });
+        });
+    </script>
+  </body>
 </html>
