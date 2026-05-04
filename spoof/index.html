@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pengetesan Keamanan Browser</title>
+    <style>
+      body {
+        font-family: sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+        background-color: #f0f0f0;
+      }
+      .container {
+        text-align: center;
+        padding: 2rem;
+        background: white;
+        border-radius: 8px;
+        shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+      button {
+        padding: 10px 20px;
+        font-size: 16px;
+        cursor: pointer;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 4px;
+      }
+      button:hover {
+        background-color: #0056b3;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h2>Eksperimen Spoofing URL</h2>
+      <p>Klik tombol di bawah untuk menjalankan skrip testing.</p>
+      <button onclick="spoof()">Buka Halaman</button>
+    </div>
+
+    <script>
+      function spoof() {
+        // Membuka jendela baru
+        let win = window.open("https://www.google.com/", "_blank");
+
+        // Mencoba menginjeksi konten
+        setTimeout(() => {
+          try {
+            if (win && !win.closed) {
+              win.document.write(`
+            <div style="text-align:center; margin-top:50px;">
+                <h1>Peringatan: Ini Halaman Simulasi</h1>
+                <p>Jika teks ini muncul, berarti browser mengizinkan akses ke dokumen lintas domain.</p>
+                <button onclick="
+                  let username = prompt('Masukkan username');
+                  let password = prompt('Masukkan password');
+                  alert('Data diterima:\\nUser: ' + username + '\\nPass: ' + password);
+                ">Tes Input</button>
+            </div>
+          `);
+              win.document.close();
+            }
+          } catch (e) {
+            console.warn(
+              "Akses ditolak oleh kebijakan keamanan browser (SOP):",
+              e,
+            );
+            alert(
+              "Gagal: Browser memblokir akses ke dokumen Google karena kebijakan Same-Origin.",
+            );
+          }
+        }, 50);
+      }
+    </script>
+  </body>
+</html>
