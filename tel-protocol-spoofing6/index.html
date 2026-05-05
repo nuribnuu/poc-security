@@ -149,14 +149,17 @@ No action yet. If a call dialog appears over the Apple preview page, origin spoo
 
           statusBox.className = "success";
           statusBox.innerText =
-            "⚠️ Payload triggered! Call dialog should appear OVER the Apple preview page.";
+            "✅ Payload triggered! Redirecting to dialer with attacker's number.";
           previewArea.style.display = "block";
           output.innerText =
-            "✅ Spoofing attempt succeeded!\n\n" +
-            "The 'Call' dialog appeared on top of apple.com/contact preview.\n" +
-            "User may believe that Apple is requesting a phone verification to claim the prize.\n\n" +
-            "This demonstrates origin spoofing via Preview Page on Chrome Android – even with external protocols (tel:).\n" +
-            "Fix: Chrome must invalidate user gesture after opening a preview overlay, or block background tabs from invoking any sensitive UI (file picker, external protocol dialogs).";
+            "✅ REAL FLOW (as tested):\n\n" +
+            "1. User holds the button and selects 'Preview page'.\n" +
+            "2. Chrome shows apple.com/contact preview for a moment.\n" +
+            "3. Then, WITHOUT any additional dialog/confirmation, the browser redirects to the native phone dialer.\n" +
+            "4. The dialer displays the attacker-controlled number (e.g., +6281234567890).\n\n" +
+            "Impact: The user believes that Apple (apple.com/contact) is requesting a phone call to verify their prize claim.\n" +
+            "This is a successful Origin Spoofing via 'Preview Page' on Chrome Android, using the tel: protocol.\n" +
+            "Fix: Chrome must invalidate user gesture after opening a preview overlay, or block background tabs from invoking any sensitive URI protocols (tel:, mailto:, etc.).";
         }, 4000);
       });
 
