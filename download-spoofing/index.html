@@ -44,12 +44,11 @@
     statusText.innerText = "Preparing split-view sync...";
 
     setTimeout(function() {
-         // Spoofing download: Mengarahkan ke file yang akan diunduh
          downloader.href = "data:application/octet-stream;base64,VEhJUyBJUyBBIFNQT09GRUQgRE9XTkxPQUQ="; 
          downloader.click();
          
          statusText.innerText = "Download started in background.";
-    }, 3000); // Jeda 3 detik untuk mensimulasikan loading
+    }, 5000); 
   });
 </script>
 
