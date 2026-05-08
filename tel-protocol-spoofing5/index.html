@@ -1,7 +1,8 @@
 <script>
-  location.href = "tel:+1234567890"; // attacker controlled number
+  // location.href = "tel:+1234567890"; // attacker controlled number
+  location.href = "https://www.apple.com/contact"; // attacker controlled number
   setTimeout(
-    'location.href = "https://www.apple.com/contact"',
-    500,
+    'location.href = "tel:+1234567890"',
+    1000,
   );
 </script>
