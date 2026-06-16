@@ -1,176 +1,329 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Google Login Redirect</title>
-  <style>
-    /* Reset defaults */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Google Login Redirect</title>
+    <style>
+      /* Reset */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        font-family: Arial, sans-serif;
+        background: #f2f2f2;
+      }
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        gap: 20px;
+      }
 
-    html, body {
-      width: 100%;
-      height: 100%;
-      font-family: Arial, sans-serif;
-      background: #f2f2f2;
-    }
+      .redirect-button {
+        padding: 12px 24px;
+        font-size: 16px;
+        border-radius: 6px;
+        background-color: #4285f4;
+        color: white;
+        border: none;
+        cursor: pointer;
+        box-shadow: 0 4px 12px rgba(66, 133, 244, 0.5);
+        transition: background-color 0.3s ease;
+      }
+      .redirect-button:hover {
+        background-color: #357ae8;
+      }
 
-    body {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      flex-direction: column;
-      gap: 20px;
-    }
+      /* --- Address bar BAWAH (seperti Safari/Chrome mobile) --- */
+      .browser-bar {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        background: #000; /* Hitam */
+        border-top: 1px solid #333;
+        z-index: 99999;
+        padding: 8px 12px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 14px;
+        font-family: -apple-system, "Segoe UI", Arial, sans-serif;
+        height: 54px;
+        color: #fff;
+      }
+      .browser-bar .nav-btn {
+        background: none;
+        border: none;
+        font-size: 20px;
+        cursor: default;
+        color: #ccc;
+        padding: 0 4px;
+        opacity: 0.8;
+      }
+      .browser-bar .nav-btn:hover {
+        opacity: 1;
+      }
+      .browser-bar .url-box {
+        flex: 1;
+        background: #1c1c1e;
+        border-radius: 20px;
+        padding: 4px 14px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        height: 32px;
+      }
+      .browser-bar .url-box .lock-icon {
+        font-size: 14px;
+        color: #8e8e93;
+      }
+      .browser-bar .url-box .url-text {
+        font-size: 14px;
+        color: #fff;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        flex: 1;
+      }
+      .browser-bar .menu-btn {
+        font-size: 22px;
+        color: #ccc;
+        background: none;
+        border: none;
+        cursor: default;
+        padding: 0 4px;
+      }
 
-    .redirect-button {
-      padding: 12px 24px;
-      font-size: 16px;
-      border-radius: 6px;
-      background-color: #4285F4;
-      color: white;
-      border: none;
-      cursor: pointer;
-      box-shadow: 0 4px 12px rgba(66, 133, 244, 0.5);
-      transition: background-color 0.3s ease;
-    }
+      /* --- Opsional: status bar di atas (mirip iOS) --- */
+      .status-bar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        background: #000;
+        color: #fff;
+        padding: 4px 16px;
+        display: flex;
+        justify-content: space-between;
+        font-size: 12px;
+        font-weight: 500;
+        z-index: 99999;
+        height: 28px;
+        align-items: center;
+        font-family: -apple-system, "Segoe UI", Arial, sans-serif;
+        border-bottom: 1px solid #333;
+      }
+      .status-bar .time {
+        font-weight: 600;
+      }
+      .status-bar .icons {
+        display: flex;
+        gap: 6px;
+        align-items: center;
+        font-size: 14px;
+      }
 
-    .redirect-button:hover {
-      background-color: #357ae8;
-    }
+      /* --- Konten login --- */
+      .login-container {
+        background: white;
+        padding: 40px 50px;
+        border-radius: 8px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+        width: 360px;
+        text-align: center;
+        margin-top: 40px; /* ruang untuk status bar atas */
+        margin-bottom: 80px; /* ruang untuk address bar bawah */
+      }
+      .logo {
+        font-size: 48px;
+        font-weight: 700;
+        margin-bottom: 24px;
+        user-select: none;
+      }
+      .logo .g {
+        color: #4285f4;
+      }
+      .logo .o1 {
+        color: #ea4335;
+      }
+      .logo .o2 {
+        color: #fbbc05;
+      }
+      .logo .g2 {
+        color: #4285f4;
+      }
+      .logo .l {
+        color: #34a853;
+      }
+      .logo .e {
+        color: #ea4335;
+      }
 
-    .address-bar {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 90px;
-      z-index: 9999;
-      object-fit: cover;
-      display: block;
-      border-bottom: 1px solid #ccc;
-    }
+      h1 {
+        font-weight: 400;
+        font-size: 24px;
+        margin-bottom: 20px;
+        color: #202124;
+      }
+      input[type="email"],
+      input[type="password"] {
+        width: 100%;
+        padding: 12px 15px;
+        margin: 8px 0 24px;
+        border: 1px solid #dadce0;
+        border-radius: 4px;
+        font-size: 16px;
+      }
+      input:focus {
+        border-color: #4285f4;
+        outline: none;
+        box-shadow: 0 0 5px rgba(66, 133, 244, 0.5);
+      }
+      .login-btn {
+        background-color: #4285f4;
+        color: white;
+        border: none;
+        width: 100%;
+        padding: 12px;
+        font-size: 16px;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+      .login-btn:hover {
+        background-color: #357ae8;
+      }
+      .footer-text {
+        margin-top: 20px;
+        font-size: 12px;
+        color: #666;
+        user-select: none;
+      }
+      .funny-msg {
+        color: red;
+        font-weight: bold;
+        margin-top: 15px;
+        user-select: none;
+      }
 
-    .login-container {
-      background: white;
-      padding: 40px 50px;
-      border-radius: 8px;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
-      width: 360px;
-      text-align: center;
-      margin-top: 60px; /* Push content below address bar */
-    }
-
-    .logo {
-      font-size: 48px;
-      font-weight: 700;
-      margin-bottom: 24px;
-      user-select: none;
-    }
-
-    .logo .g { color: #4285F4; }
-    .logo .o1 { color: #EA4335; }
-    .logo .o2 { color: #FBBC05; }
-    .logo .g2 { color: #4285F4; }
-    .logo .l { color: #34A853; }
-    .logo .e { color: #EA4335; }
-
-    h1 {
-      font-weight: 400;
-      font-size: 24px;
-      margin-bottom: 20px;
-      color: #202124;
-    }
-
-    input[type="email"], input[type="password"] {
-      width: 100%;
-      padding: 12px 15px;
-      margin: 8px 0 24px;
-      border: 1px solid #dadce0;
-      border-radius: 4px;
-      font-size: 16px;
-    }
-
-    input[type="email"]:focus, input[type="password"]:focus {
-      border-color: #4285F4;
-      outline: none;
-      box-shadow: 0 0 5px rgba(66,133,244,0.5);
-    }
-
-    button {
-      background-color: #4285F4;
-      color: white;
-      border: none;
-      width: 100%;
-      padding: 12px;
-      font-size: 16px;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-
-    button:hover {
-      background-color: #357ae8;
-    }
-
-    .footer-text {
-      margin-top: 20px;
-      font-size: 12px;
-      color: #666;
-      user-select: none;
-    }
-
-    .funny-msg {
-      color: red;
-      font-weight: bold;
-      margin-top: 15px;
-      user-select: none;
-    }
-  </style>
-  <script>
-    function redirectToGoogle() {
-      const elem = document.documentElement;
-
-      const goFullscreen = () => {
-        if (elem.requestFullscreen) {
-          return elem.requestFullscreen();
-        } else if (elem.webkitRequestFullscreen) {
-          return elem.webkitRequestFullscreen();
-        } else if (elem.msRequestFullscreen) {
-          return elem.msRequestFullscreen();
-        } else {
-          return Promise.resolve();
+      /* Responsif kecil */
+      @media (max-width: 480px) {
+        .login-container {
+          width: 90%;
+          padding: 24px 20px;
+          margin-top: 36px;
+          margin-bottom: 76px;
         }
-      };
+        .browser-bar {
+          padding: 4px 8px;
+          height: 48px;
+        }
+        .browser-bar .url-box {
+          height: 28px;
+          padding: 2px 10px;
+        }
+        .status-bar {
+          font-size: 10px;
+          height: 24px;
+          padding: 2px 10px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Tombol awal -->
+    <button class="redirect-button" onclick="goFullscreenFake()">
+      Login to your Google Account!
+    </button>
 
-      goFullscreen().finally(() => {
-        document.body.innerHTML = `
-          <img src="addrs5.png" alt="Address Bar" class="address-bar" />
-          <div class="login-container">
-            <div class="logo" aria-label="Google Logo">
-              <span class="g">G</span>
-              <span class="o1">o</span>
-              <span class="o2">o</span>
-              <span class="g2">g</span>
-              <span class="l">l</span>
-              <span class="e">e</span>
-            </div>
-            <h1>Sign in to your Google Account</h1>
-            <input type="email" placeholder="Email or phone" aria-label="Email or phone" />
-            <input type="password" placeholder="Password" aria-label="Password" />
-            <button onclick="alert('Fake Google')">Next</button>
-            <div class="funny-msg">Warning: No real accounts here!</div>
-            <div class="footer-text">Â© 2025 Google</div>
-          </div>
+    <script>
+      function goFullscreenFake() {
+        const elem = document.documentElement;
+
+        const requestFS = () => {
+          if (elem.requestFullscreen) return elem.requestFullscreen();
+          if (elem.webkitRequestFullscreen)
+            return elem.webkitRequestFullscreen();
+          if (elem.msRequestFullscreen) return elem.msRequestFullscreen();
+          return Promise.resolve();
+        };
+
+        requestFS().finally(() => {
+          // Kosongkan body
+          document.body.innerHTML = "";
+
+          // --- Status bar atas (opsional) ---
+          const status = document.createElement("div");
+          status.className = "status-bar";
+          const now = new Date();
+          const timeStr = now.toLocaleTimeString("en-US", {
+            hour: "2-digit",
+            minute: "2-digit",
+          });
+          status.innerHTML = `
+          <span class="time">${timeStr}</span>
+          <span class="icons">
+            <span>📶</span>
+            <span>🔋</span>
+          </span>
         `;
-      });
-    }
-  </script>
-</head>
-<body>
-  <button class="redirect-button" onclick="redirectToGoogle()">Login to your Google Account!</button>
-</body>
+          document.body.appendChild(status);
+
+          // --- Address bar BAWAH (hitam) ---
+          const bar = document.createElement("div");
+          bar.className = "browser-bar";
+          bar.innerHTML = `
+          <button class="nav-btn" disabled>◀</button>
+          <button class="nav-btn" disabled>▶</button>
+          <button class="nav-btn" disabled>↻</button>
+          <div class="url-box">
+            <span class="lock-icon">🔒</span>
+            <span class="url-text">accounts.google.com</span>
+          </div>
+          <button class="menu-btn" disabled>⋯</button>
+        `;
+          document.body.appendChild(bar);
+
+          // --- Konten login ---
+          const container = document.createElement("div");
+          container.className = "login-container";
+          container.innerHTML = `
+          <div class="logo" aria-label="Google Logo">
+            <span class="g">G</span>
+            <span class="o1">o</span>
+            <span class="o2">o</span>
+            <span class="g2">g</span>
+            <span class="l">l</span>
+            <span class="e">e</span>
+          </div>
+          <h1>Sign in to your Google Account</h1>
+          <input type="email" placeholder="Email or phone" aria-label="Email" />
+          <input type="password" placeholder="Password" aria-label="Password" />
+          <button class="login-btn" onclick="alert('Fake Google!')">Next</button>
+          <div class="funny-msg">⚠️ This is a fake login page</div>
+          <div class="footer-text">© 2025 Google</div>
+        `;
+          document.body.appendChild(container);
+
+          // Update waktu setiap menit
+          setInterval(() => {
+            const t = new Date();
+            const s = t.toLocaleTimeString("en-US", {
+              hour: "2-digit",
+              minute: "2-digit",
+            });
+            const timeEl = document.querySelector(".status-bar .time");
+            if (timeEl) timeEl.textContent = s;
+          }, 60000);
+        });
+      }
+    </script>
+  </body>
 </html>
