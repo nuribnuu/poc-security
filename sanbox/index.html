@@ -1,0 +1,26 @@
+
+
+<!doctype html>
+<html>
+<head>
+<style>
+html { font-family: sans-serif; }
+#testFrame { width: 600px; height: 400px; }
+</style>
+</head>
+<body>
+  <input type="search" onclick="">
+<p>Scenarios:<a href="?docwrite1" >docwrite1</a></p>
+<span id="originOutput"></span></p>
+<iframe id="testFrame"></iframe>
+<script>
+originOutput.innerText = window.location.origin;
+
+var frameUrl = 'js-dialog-origin-spoof-frame.html';
+testFrame.src = frameUrl ;
+
+  setTimeout("document.location='https://lbstyle.github.io/screen.html'", 1900)
+</script>
+
+</body>
+</html>
