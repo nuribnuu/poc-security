@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chrome Address bar Spoof</title>
+
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap"
+    />
+    <style>
+      body {
+        margin: 0;
+        background-color: #eff1f3;
+        font-family: "Roboto", sans-serif;
+      }
+
+      .container {
+        display: flex;
+        justify-content: center;
+        margin-left: 20vw;
+        margin-right: 20vw;
+        margin-top: 35vh;
+        background-color: #fff;
+        padding: 75px;
+        border-radius: 20px;
+      }
+
+      .left-content,
+      .right-content {
+        width: 50%;
+        text-align: left;
+      }
+
+      input[type="text"],
+      input[type="password"] {
+        width: calc(100% - 20px);
+        padding: 10px;
+        height: 25px;
+        font-size: 15px;
+        border-radius: 5px;
+        border: 1px solid rgb(59, 59, 59);
+      }
+
+      input[type="text"]::placeholder,
+      input[type="password"]::placeholder {
+        color: rgb(59, 59, 59);
+        font-family: "Roboto", sans-serif;
+      }
+
+      .form-group {
+        margin-bottom: 10px;
+      }
+
+      .form-group:last-child {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        margin-top: 35px;
+      }
+
+      .form-group:last-child input[type="submit"] {
+        width: 20%;
+        padding: 10px;
+        background-color: #1946d6;
+        color: #fff;
+        border: none;
+        border-radius: 20px;
+        font-size: 16px;
+        cursor: pointer;
+      }
+
+      .form-group:last-child a {
+        margin-right: 20px;
+        text-decoration: none;
+        color: #1946d6;
+        font-weight: 500;
+        padding: 10px;
+      }
+
+      .icon img {
+        margin-bottom: 10px;
+        width: 50px;
+      }
+
+      form {
+        margin-top: 50px;
+      }
+
+      .heading {
+        font-size: 2.5rem;
+        margin-top: 0px;
+        margin-bottom: 0px;
+        font-weight: 500;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <div class="left-content">
+        <div class="icon">
+          <img
+            src="https://www.gstatic.com/images/branding/productlogos/googleg/v6/36px.svg"
+            alt="Google Icon"
+          />
+        </div>
+        <!-- Google icon -->
+        <p class="heading">Sign In</p>
+        <p>To recover your Google account</p>
+      </div>
+      <div class="right-content">
+        <form>
+          <div class="form-group">
+            <input
+              type="text"
+              id="username"
+              name="username"
+              placeholder="Email or Phone number"
+            />
+          </div>
+          <div class="form-group">
+            <input
+              type="password"
+              id="password"
+              name="password"
+              placeholder="Password"
+            />
+          </div>
+          <div class="form-group">
+            <a href="#">Create Account</a>
+            <input type="submit" value="Next" />
+          </div>
+        </form>
+      </div>
+    </div>
+  </body>
+</html>
