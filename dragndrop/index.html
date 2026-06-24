@@ -1,0 +1,37 @@
+<!-- Halaman Penyerang (misal: evilsite.com) -->
+<!doctype html>
+<html>
+  <head>
+    <title>Fake Page</title>
+  </head>
+  <body>
+    <h3>Halaman ini mensimulasikan Address Bar Spoofing</h3>
+    <p>Silakan tarik (drag) link di bawah ini ke Address Bar browser Anda:</p>
+
+    <!-- 
+      Penyerang membuat sebuah link yang mengarah ke server mereka sendiri, 
+      tetapi menyamar sebagai google.com menggunakan custom port atau subdomain lambat 
+    -->
+    <a href="http://google.com:8080/palsu" id="spoofLink"
+      >Tarik saya ke Address Bar</a
+    >
+
+    <script>
+      // Triknya ada di sini:
+      // Ketika korban melakukan Drag, skrip di halaman penyerang sengaja
+      // memperlambat respon atau membuat koneksi menggantung (hanging/sleep).
+
+      document
+        .getElementById("spoofLink")
+        .addEventListener("dragstart", function (e) {
+          // Skrip jahat bisa memanipulasi data yang di-drag atau
+          // memicu request ke server penyerang yang sengaja dibuat 'pending' (loading sangat lama).
+          console.log("Proses drag dimulai... Server sengaja dibuat lambat.");
+        });
+
+      // Selama browser menampilkan status "Connecting..." dan memuat URL lambat di atas,
+      // halaman asli (evilsite.com) masih aktif dan bisa menampilkan konten palsu (phishing)
+      // seolah-olah pengguna sudah berada di google.com.
+    </script>
+  </body>
+</html>
