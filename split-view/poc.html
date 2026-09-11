@@ -1,0 +1,51 @@
+<!doctype html>
+<html>
+  <body>
+    <a
+      href="https://google.com"
+      oncontextmenu="setTimeout(' openAndReadFile()', 3200)"
+      onclick="f()"
+      >Open Google</a
+    ><br /><br /><br /><br />
+
+    <img id="myImageElement" width="300px" height="300px" />
+    <script>
+      async function openAndReadFile() {
+        try {
+          // Options for the file picker, allowing selection of image files
+          const pickerOpts = {
+            types: [
+              {
+                description: "Images",
+                accept: {
+                  "image/*": [".png", ".gif", ".jpeg", ".jpg"],
+                },
+              },
+            ],
+            excludeAcceptAllOption: false,
+            multiple: false,
+          };
+
+          const [fileHandle] = await window.showOpenFilePicker(pickerOpts);
+
+          const file = await fileHandle.getFile();
+
+          const fileContent = await file.text();
+
+          console.log("File Name:", file.name);
+          console.log("File Content:", fileContent);
+
+          const imageUrl = URL.createObjectURL(file);
+          document.getElementById("myImageElement").src = imageUrl;
+        } catch (error) {
+          if (error.name === "AbortError") {
+            console.log("User cancelled the file picker.");
+          } else {
+            console.error("Error opening or reading file:", error);
+          }
+        }
+      }
+    </script>
+  </body>
+</html>
+play sound
