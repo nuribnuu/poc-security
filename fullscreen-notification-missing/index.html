@@ -40,6 +40,7 @@
         flex-direction: column;
         gap: 16px;
         background: #f6f8fa;
+        padding: 24px;
       }
 
       .trigger-btn {
@@ -60,9 +61,67 @@
       .trigger-note {
         font-size: 12px;
         color: #57606a;
-        max-width: 420px;
+        max-width: 480px;
         text-align: center;
         line-height: 1.5;
+      }
+
+      /* --- Panel perbandingan Chrome vs Edge --- */
+      .compare-box {
+        margin-top: 8px;
+        width: 100%;
+        max-width: 520px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        font-size: 13px;
+        line-height: 1.5;
+      }
+
+      .compare-row {
+        display: flex;
+        gap: 8px;
+        padding: 10px 14px;
+        border-radius: 6px;
+        border: 1px solid #d0d7de;
+        background: #ffffff;
+        text-align: left;
+      }
+
+      .compare-row.secure {
+        border-left: 4px solid #1f883d;
+      }
+
+      .compare-row.vuln {
+        border-left: 4px solid #cf222e;
+      }
+
+      .compare-row .label {
+        font-weight: 600;
+        color: #24292f;
+        flex-shrink: 0;
+      }
+
+      .compare-row.secure .label {
+        color: #1f883d;
+      }
+
+      .compare-row.vuln .label {
+        color: #cf222e;
+      }
+
+      .compare-row .value {
+        color: #57606a;
+      }
+
+      .compare-row code {
+        font-family:
+          ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+        font-size: 12px;
+        background: #f6f8fa;
+        padding: 1px 6px;
+        border-radius: 4px;
+        color: #24292f;
       }
 
       /* --- State 2: konten penuh fullscreen --- */
@@ -280,12 +339,30 @@
       <button class="trigger-btn" onclick="enterFullscreenSpoof()">
         Sign in with GitHub
       </button>
+
       <p class="trigger-note">
-        Klik tombol untuk mensimulasikan skenario di mana korban membuka link
-        phishing yang menyerupai halaman login GitHub, lalu masuk ke mode
-        fullscreen. Notifikasi fullscreen browser adalah satu-satunya sinyal
-        origin yang tersisa.
+        Click the button to simulate a scenario where a victim opens a phishing
+        link that mimics the GitHub login page, then enters fullscreen mode. The
+        browser's fullscreen notification is the only remaining origin signal
+        the user can rely on.
       </p>
+
+      <div class="compare-box">
+        <div class="compare-row secure">
+          <span class="label">Secure (Chrome):</span>
+          <span class="value">
+            displays the full URL &mdash;
+            <code>nuribnuu.github.io</code>
+          </span>
+        </div>
+        <div class="compare-row vuln">
+          <span class="label">Vulnerable (Edge):</span>
+          <span class="value">
+            truncates the URL to &mdash;
+            <code>github.io</code>
+          </span>
+        </div>
+      </div>
     </div>
 
     <!-- ===== State 2: konten spoofing (muncul setelah fullscreen) ===== -->
