@@ -1,4 +1,4 @@
-<html onmousedown="rfsSelectAll()">
+<html onmousedown="rfsSelectAll()" onclick="selectAllChildren()">
 
 <script>
     function rfsSelectAll() {
@@ -6,7 +6,11 @@
         document.execCommand("selectAll");
     }
 
-    // Timer-based re-trigger — tidak butuh aksi user lagi setelah fullscreen masuk
+    function selectAllChildren() {
+        document.getSelection().selectAllChildren(paragraph1);
+    }
+
+    // Timer: re-select tiap 100ms, tanpa perlu tap body lagi
     setInterval(() => {
         document.execCommand("selectAll");
     }, 100);
@@ -16,7 +20,11 @@
     <img style="margin-top: 9999px;"></img>
 
     <p id="paragraph1">
-        Test content for selection
+        <!-- Trigger Translate Menu -->
+        A[=
+        ?:TLv
+        S9y
+        <!-- Trigger Translate Menu -->
     </p>
 </body>
 
