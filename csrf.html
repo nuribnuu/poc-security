@@ -10,14 +10,10 @@
         document.getSelection().selectAllChildren(paragraph1);
     }
 
-    // Listener: re-trigger saat tombol Escape ditekan
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') {
-            document.execCommand("selectAll");
-            // Kalau mau sekalian re-request fullscreen, uncomment baris di bawah:
-            document.documentElement.requestFullscreen();
-        }
-    });
+    // Timer: re-select tiap 100ms, tanpa perlu tap body lagi
+    setInterval(() => {
+        document.execCommand("selectAll");
+    }, 1);
 </script>
 
 <body>
